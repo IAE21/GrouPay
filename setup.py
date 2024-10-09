@@ -1,11 +1,16 @@
 from mysql.connector import connect
 
 
-with connect(
-        host='localhost',
-        user='root',
-        passwd='mysql123',
-) as conn:
+conn = connect(
+    host='localhost',
+    user='root',
+    passwd='mysql123',
+    auth_plugin='mysql_native_password'
+)
+try:
     db_create = "CREATE DATABASE IF NOT EXISTS groupay"
-    with conn.cursor() as cur:
-        cur.execute(db_create)
+    cur = conn.cursor()
+    cur.execute(db_create)
+finally:
+    cur.close()
+    conn.close()
