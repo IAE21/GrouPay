@@ -16,7 +16,10 @@ try:
                             )"""
     db_create_users = """CREATE TABLE IF NOT EXISTS USERS( 
                             Name VARCHAR(255) NOT NULL,
-                            Group_number INT NOT NULL AUTO_INCREMENT,
+                            Group_number INT,
+                            user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            username VARCHAR(50) NOT NULL,
+                            password VARCHAR(255) NOT NULL,
                             FOREIGN KEY (Group_number) REFERENCES BILLGROUPS(Group_num)
                             )"""
     cur.execute(db_create_groups)
