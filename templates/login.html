@@ -5,6 +5,19 @@
     </head>
     <body>
         <h1>GrouPay login</h1>
+        <form method="POST" action="{{ url_for('login') }}">
+            <p>
+                <label for="username">Username:</label><br>
+                <input type="text" name="username" id="username" required>
+            </p>
+            <p>
+                <label for="password">Password:</label><br>
+                <input type="password" name="password" id="password" required>
+            </p>
+            <p>
+                <input type="submit" value="Login">
+            </p>
+        </form>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('register') }}">Create Account</a>
