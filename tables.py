@@ -9,7 +9,7 @@ with connect(
 ) as conn:
     db_create_groups = """CREATE TABLE IF NOT EXISTS BILLGROUPS(
                             Group_num INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                            Amount INT NOT NULL
+                            Amount DEC(10,2) NOT NULL
                             )"""
     db_create_users = """CREATE TABLE IF NOT EXISTS USERS( 
                             Name VARCHAR(255) NOT NULL,
