@@ -1,28 +1,22 @@
 from mysql.connector import connect
 
 
-conn = connect(
+with connect(
         host='localhost',
         user='root',
         passwd='mysql123',
         database='groupay',
-        auth_plugin='mysql_native_password'
-)
-try:
-    cur = conn.cursor()
+) as conn:
     db_create_groups = """CREATE TABLE IF NOT EXISTS BILLGROUPS(
                             Group_num INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                            Amount INT NOT NULL
-                            )"""
+                            Amount DEC(10,2) NOT NULL
+                            );"""
     db_create_users = """CREATE TABLE IF NOT EXISTS USERS( 
                             Name VARCHAR(255) NOT NULL,
                             Group_number INT NOT NULL AUTO_INCREMENT,
                             FOREIGN KEY (Group_number) REFERENCES BILLGROUPS(Group_num)
-                            )"""
-    cur.execute(db_create_groups)
-    cur.execute(db_create_users)
-    conn.commit()
-
-finally:
-    cur.close()
-    conn.close()
+                            ON DELETE CASCADE ON UPDATE CASCADE
+                            );"""
+    with conn.cursor() as cur:
+        cur.execute(db_create_groups)
+        cur.execute(db_create_users)
