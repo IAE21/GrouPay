@@ -8,7 +8,7 @@ app.secret_key = 'cmills'
 
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_DB"] = "Groupay"
+app.config["MYSQL_DB"] = "groupay"
 
 mysql = MySQL(app)
 
