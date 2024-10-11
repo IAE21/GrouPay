@@ -4,6 +4,7 @@ try:
     with connect(
         host='localhost',
         user='root',
+        password='mysql123'
     ) as conn:
         db_create = "CREATE DATABASE IF NOT EXISTS groupay"
         with conn.cursor() as cur:
@@ -12,6 +13,7 @@ try:
     with connect(
         host='localhost',
         user='root',
+        password='mysql123',
         database='groupay'
     ) as conn:
         db_create_users = """CREATE TABLE IF NOT EXISTS USERS( 

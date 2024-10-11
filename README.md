@@ -34,4 +34,12 @@
 
    ###
    Other Instructions:
-   If running the project in Ubuntu, it may be necessary to manually open the MySQL server from the command line to edit the authentication_plugin attribute of the user 'root' to change it to 'mysql_native_password' instead of 'auth_socket'.
+   If running the project in Ubuntu, it may be necessary to manually open the MySQL server from the command line to edit the authentication_plugin attribute of the user 'root' to change it to 'caching_sha2_password' instead of 'auth_socket' or 'mysql_native_password'.
+   This can be done by opening the msyql server in the commandline:
+      ```bash
+   sudo mysql -u root
+   ```
+   Then, once in the mysql server command prompt, run the command:
+      ```bash
+   ALTER USER 'root'@'localhost' IDENTIFIED WITH 'caching_sha2_password' BY 'mysql123';
+   ```

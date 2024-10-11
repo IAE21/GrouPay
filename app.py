@@ -8,6 +8,7 @@ app.secret_key = 'cmills'
 
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "mysql123"
 app.config["MYSQL_DB"] = "groupay"
 
 mysql = MySQL(app)
@@ -22,8 +23,6 @@ def login():
         uname = request.form['username']
         pword = request.form['password']
         
-        print(uname)
-        print(pword)
         try:
             cur = mysql.connection.cursor()
             valid = cur.execute("SELECT 1 FROM USERS WHERE username=%s AND password=%s", (uname, pword))
