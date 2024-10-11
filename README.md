@@ -19,8 +19,10 @@
    ```bash
    python3 app.py
    ```
+   
    ###
    Division of Labour:
+   ###
    Front End: Jack Throdahl, Ian Estevez
 
    ###
