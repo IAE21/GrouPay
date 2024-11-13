@@ -31,7 +31,6 @@ try:
                             group_name VARCHAR(100),
                             company VARCHAR(150),
                             amount DEC(10,2) NOT NULL,
-                            member_ids VARCHAR(500)
                             )"""
         db_create_pays = """CREATE TABLE IF NOT EXISTS PAYS_FOR(
                             user_id INT NOT NULL,
