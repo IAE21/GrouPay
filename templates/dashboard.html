@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    .container {
+    	display: flex;
+    	flex-direction: column;
+    	height: 100vh;
+    }
+ 
+    .top {
+    	flex: 0 0 auto; 
+    	background-color: #7FD8B9;
+    	color: white;
+    	padding: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+    }
+
+	.links {
+		display: flex;
+		gap: 10px;
+	}
+    
+    .side {
+		flex: 0 0 100px;
+		background-color: grey;
+		padding: 10px;
+		min-height: 100vh;
+	}
+  
+	.middle {
+		flex: 1;
+		background-color: white;
+		padding: 10px;
+		min-height: 100vh;
+	}
+    
+    body {
+    	margin: 0;
+    	font-family: Arial, sans-serif;
+    }
+
+	.center{
+		height: 200px;
+		width: 100%;
+		top: 30%;
+		left: 35%;
+		text-align: center;
+	}
+
+	.centerform{
+		left: 45%;
+		text-align: center;
+	}
+	
+	.centertable{
+		margin-top: 31px;
+		text-align: center;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 20px;
+	}
+  
+	table, th, td {
+		border: 1px solid black;
+	}
+
+	th, td {
+		padding: 10px;
+		text-align: left;
+	}
+	results {
+		margin-top: 350px;
+	}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+		<div class="top"><img src="{{url_for('static', filename='images/logo.png')}}" alt="GrouPay">
+			<div class="links">
+				<div><a href="/dashboard" style="color: white;">Dashboard</a></div>
+				<div><a href = "/dashboard" style="color: white;">Search for Groups</a></div>
+				<div><a href = "/dashboard" style="color: white;">Search for Users</a></div>
+				<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
+				<div><a href = "/dashboard" style="color: white;">Friends</a></div>
+				<div><a href = "/dashboard" style="color: white;">My Profile</a></div>
+			</div>
+		</div>
+    <div style="display: flex;">
+      	<div class="side"></div>
+      	<div class="middle">
+			<div class = "center">
+				<div class = "centerform">
+					<h1>Hello, User!</h1>
+				</div>
+				<div class="centertable">
+					<h3>Your Groups:</h3>
+					<table id="resultsTable">
+						<thead>
+						<tr>
+							<th>Group Name</th>
+						</tr>
+						</thead>
+						<tbody id="groupsList">
+						{% for group in glist %}
+						<tr>
+							<td>{{ group['group_name'] }}</td>
+						</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="side"></div>
+	</div>
+</div>
+</body>
+</html>
