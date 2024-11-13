@@ -30,7 +30,7 @@ try:
                             group_num INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                             group_name VARCHAR(100),
                             company VARCHAR(150),
-                            amount DEC(10,2) NOT NULL,
+                            amount DEC(10,2) NOT NULL
                             )"""
         db_create_pays = """CREATE TABLE IF NOT EXISTS PAYS_FOR(
                             user_id INT NOT NULL,
