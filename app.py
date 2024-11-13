@@ -11,6 +11,7 @@ app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "mysql123"
 app.config["MYSQL_DB"] = "groupay"
 
+
 mysql = MySQL(app)
 
 @app.route('/')
@@ -27,7 +28,7 @@ def login():
             cur = mysql.connection.cursor()
             valid = cur.execute("SELECT 1 FROM USERS WHERE username=%s AND password=%s", (uname, pword))
             if valid != 0:
-                return render_template('home.html')
+                return render_template('dashboard.html')
             flash('Incorrect username or password.', category='error')
         except Error as e:
             print(e)
@@ -59,6 +60,10 @@ def register():
             return render_template('register.html')
                             
     return render_template('register.html')
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    return render_template('dashboard.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

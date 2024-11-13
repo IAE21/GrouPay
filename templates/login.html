@@ -5,6 +5,7 @@
     </head>
     <style>
         body {
+            background-color: #7FD8B9;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -13,6 +14,7 @@
         }
     </style>
     <body>
+        <img src="{{url_for('static', filename='images/logo.png')}}" alt="GrouPay">
         <h1>GrouPay Login</h1>
         <form method="POST" action="{{ url_for('login') }}">
             <p>
