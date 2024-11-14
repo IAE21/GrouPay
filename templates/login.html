@@ -6,12 +6,23 @@
     <style>
         body {
             background-color: #7FD8B9;
+            font-family: arial;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-top: 10%;
+            margin-top: 5%;
         }
+        a.button {
+            background-color: #4A4F56;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+          }
     </style>
     <body>
         <img src="{{url_for('static', filename='images/logo.png')}}" alt="GrouPay">
@@ -25,7 +36,7 @@
                 <label for="password">Password:</label><br>
                 <input type="password" name="password" id="password" required>
             </p>
-            <p>
+            <p style="text-align: center;">
                 <input type="submit" value="Login">
             </p>
         </form>
@@ -44,8 +55,8 @@
         {% endif %} {% endfor %} {% endif %} {% endwith %}
 
         <nav>
-            <a href="{{ url_for('home') }}">Home</a>
-            <a href="{{ url_for('register') }}">Create Account</a>
+            <a href="{{ url_for('home') }}" class="button">Back to Home</a>
+            <a href="{{ url_for('register') }}" class="button">Create Account</a>
         </nav>
     </body>
 </html>

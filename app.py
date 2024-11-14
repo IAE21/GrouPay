@@ -55,6 +55,7 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        comp = request.form['company']
         fname = request.form['fname']
         lname = request.form['lname']
         uname = request.form['username']
@@ -68,7 +69,7 @@ def register():
             
         try:
             cur = mysql.connection.cursor()
-            cur.execute("INSERT IGNORE INTO USERS(fname, lname, username, password, corporate) VALUES(%s, %s, %s, %s, %s)", (fname, lname, uname, pword, corp))
+            cur.execute("INSERT IGNORE INTO USERS(fname, lname, company, username, password, corporate) VALUES(%s, %s, %s, %s, %s, %s)", (fname, lname, comp, uname, pword, corp))
             mysql.connection.commit()
             return render_template('login.html')
         except Error as e:
