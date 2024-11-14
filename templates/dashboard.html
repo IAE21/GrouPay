@@ -89,6 +89,9 @@
 		<div class="top"><img src="{{url_for('static', filename='images/logo.png')}}" alt="GrouPay">
 			<div class="links">
 				<div><a href="/dashboard" style="color: white;">Dashboard</a></div>
+				{% if role == 1 %}
+				<div><a href="/dashboard" style="color: white;">Create New Billing Group</a></div>
+				{% endif %}
 				<div><a href = "/dashboard" style="color: white;">Search for Groups</a></div>
 				<div><a href = "/dashboard" style="color: white;">Search for Users</a></div>
 				<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
@@ -101,7 +104,7 @@
       	<div class="middle">
 			<div class = "center">
 				<div class = "centerform">
-					<h1>Hello, User!</h1>
+					<h1>Hello, {{ fname }}!</h1>
 				</div>
 				<div class="centertable">
 					<h3>Your Groups:</h3>

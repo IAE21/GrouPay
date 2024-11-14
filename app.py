@@ -1,18 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, session, request, redirect, url_for, flash
+from flask_login import login_user, login_required, logout_user, current_user, LoginManager
 from flask_mysqldb import MySQL
 from mysql.connector import Error
+from functools import wraps
 import setup
 
 app = Flask(__name__)
 app.secret_key = 'cmills'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "mysql123"
 app.config["MYSQL_DB"] = "groupay"
 
-
 mysql = MySQL(app)
+
+@login_manager.user_loader
+def load_user(uid):
+    current_user = auth.get_user(uid)
+    return current_user
 
 @app.route('/')
 def home():
@@ -28,7 +37,14 @@ def login():
             cur = mysql.connection.cursor()
             valid = cur.execute("SELECT 1 FROM USERS WHERE username=%s AND password=%s", (uname, pword))
             if valid != 0:
-                return render_template('dashboard.html')
+                cur.execute("SELECT * FROM USERS WHERE username=%s AND password=%s", (uname, pword))
+                results = cur.fetchall()
+                session['firstname'] = results[0][1]
+                session['lastname'] = results[0][2]
+                session['company'] = results[0][3]
+                session['username'] = results[0][4]
+                session['role'] = results[0][6]
+                return render_template('dashboard.html', role=session['role'], fname=session['firstname'])
             flash('Incorrect username or password.', category='error')
         except Error as e:
             print(e)
@@ -63,7 +79,7 @@ def register():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', role=session['role'], fname=session['firstname'])
 
 if __name__ == '__main__':
     app.run(debug=True)
