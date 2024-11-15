@@ -77,10 +77,21 @@
 		padding: 10px;
 		text-align: left;
 	}
+
 	results {
 		margin-top: 350px;
 	}
 
+	a.button {
+		background-color: #4A4F56;
+		border: none;
+		color: white;
+		padding: 10px 15px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+	  }
   </style>
 </head>
 
@@ -105,28 +116,20 @@
       	<div class="middle">
 			<div class = "center">
 				<div class = "centerform">
-					<h1>Hello, {{ fname }}!</h1>
-				</div>
-				<div class="centertable">
-					<h3>Your Groups:</h3>
-					<table id="resultsTable">
-						<thead>
-						<tr>
-							<th>Manager</th>
-							<th>Group Name</th>
-							<th>Amount</th>
-						</tr>
-						</thead>
-						<tbody id="groupsList">
-						{% for group in glist %}
-						<tr>
-							<td>{{ group[0] }}</td>
-							<td>{{ group[1] }}</td>
-							<td>{{ group[2] }}</td>
-						</tr>
-						{% endfor %}
-						</tbody>
-					</table>
+					<h1>Create A New Billing Group</h1>
+                    <form method="POST" action="{{ url_for('createGroup') }}">
+                        <p>
+                            <label for="groupname">Group Name:</label><br>
+                            <input type="text" name="groupname" id="gname" required>
+                        </p>
+                        <p>
+                            <label for="amount">Amount:</label><br>
+                            <input type="number" name="amount" id="amount" required>
+                        </p>
+						<p style="text-align: center;">
+							<input type="submit" value="Create Group">
+						</p>
+                    </form>
 				</div>
 			</div>
 		</div>

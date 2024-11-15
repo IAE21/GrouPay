@@ -23,6 +23,20 @@ def load_user(uid):
     current_user = auth.get_user(uid)
     return current_user
 
+def fetch_glist():
+    u_id = session['userID']
+    try:
+        cur = mysql.connection.cursor()
+        if session['role'] == 1:
+            cur.execute("SELECT manager_id, group_name, amount FROM BILL_GROUPS WHERE manager_id=%s", (u_id,))
+        else:
+            cur.execute("SELECT manager_id, group_name, amount FROM BILL_GROUPS")
+        glist = cur.fetchall()
+    except Error as e:
+        print(e)
+    return glist
+    
+    
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -39,12 +53,14 @@ def login():
             if valid != 0:
                 cur.execute("SELECT * FROM USERS WHERE username=%s AND password=%s", (uname, pword))
                 results = cur.fetchall()
+                session['userID'] = results[0][0]
                 session['firstname'] = results[0][1]
                 session['lastname'] = results[0][2]
                 session['company'] = results[0][3]
                 session['username'] = results[0][4]
                 session['role'] = results[0][6]
-                return render_template('dashboard.html', role=session['role'], fname=session['firstname'])
+                glist = fetch_glist()
+                return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
             flash('Incorrect username or password.', category='error')
         except Error as e:
             print(e)
@@ -80,7 +96,52 @@ def register():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    return render_template('dashboard.html', role=session['role'], fname=session['firstname'])
+    glist = fetch_glist()
+    return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+
+@app.route('/createGroup', methods=['GET', 'POST'])
+def createGroup():
+    if request.method == 'POST':
+        mgrID = session['userID']
+        gname = request.form['groupname']
+        comp = session['company']
+        amt = request.form['amount']
+        
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT IGNORE INTO BILL_GROUPS(manager_id, group_name, company, amount) VALUES(%s, %s, %s, %s)", (mgrID, gname, comp, amt))
+            mysql.connection.commit()
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+        except Error as e:
+            print(e)
+            return render_template('createGroup.html', role=session['role'])
+    
+    return render_template('createGroup.html', role=session['role'])
+
+@app.route('/searchGroups', methods=['GET', 'POST'])
+def searchGroups():
+    if request.method == 'POST':
+        gname = request.form['groupname']
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT manager_id, group_name, amount FROM BILL_GROUPS WHERE group_name=%s", (gname,))
+            glist = cur.fetchall()
+            return render_template('searchGroups.html', role=session['role'], fname=session['firstname'], glist=glist)
+        except Error as e:
+            print(e)
+            return render_template('searchGroups.html', role=session['role'], fname=session['firstname'], glist=glist)
+    
+    return render_template('searchGroups.html', role=session['role'])
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session.pop('firstname', None)
+    session.pop('lastname', None)
+    session.pop('company', None)
+    session.pop('username', None)
+    session.pop('role', None)
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

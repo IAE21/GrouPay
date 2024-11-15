@@ -77,10 +77,21 @@
 		padding: 10px;
 		text-align: left;
 	}
+
 	results {
 		margin-top: 350px;
 	}
 
+	a.button {
+		background-color: #4A4F56;
+		border: none;
+		color: white;
+		padding: 10px 15px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+	  }
   </style>
 </head>
 
@@ -105,10 +116,19 @@
       	<div class="middle">
 			<div class = "center">
 				<div class = "centerform">
-					<h1>Hello, {{ fname }}!</h1>
+					<h1>Search for Billing Groups</h1>
+                    <form method="POST" action="{{ url_for('searchGroups') }}">
+                        <p>
+                            <label for="groupname">Group Name:</label><br>
+                            <input type="text" name="groupname" id="groupname">
+                        </p>
+						<p style="text-align: center;">
+							<input type="submit" value="Search">
+						</p>
+                    </form>
 				</div>
 				<div class="centertable">
-					<h3>Your Groups:</h3>
+					<h3>Groups Found:</h3>
 					<table id="resultsTable">
 						<thead>
 						<tr>
