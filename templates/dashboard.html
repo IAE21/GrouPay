@@ -81,6 +81,17 @@
 		margin-top: 350px;
 	}
 
+	.button {
+		background-color: #4A4F56;
+		border: none;
+		color: white;
+		padding: 10px 15px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+	  }
+
   </style>
 </head>
 
@@ -123,6 +134,12 @@
 							<td>{{ group[2] }}</td>
 							<td>${{ group[3] }}</td>
 							<td>{{ group[0] }} {{ group[1] }}</td>
+							<td style="text-align:center">
+								<form method="POST" action="{{ url_for('manageGroup') }}">
+									<input type="text" name="groupnum" id="groupnum" style="display:none" value={{ group[4] }}>
+									<input type="submit" value="•••" class="button">
+								</form>
+							</td>
 						</tr>
 						{% endfor %}
 						</tbody>

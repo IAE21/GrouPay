@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create</title>
+  <title>Manage</title>
   <style>
     .container {
     	display: flex;
@@ -77,12 +77,11 @@
 		padding: 10px;
 		text-align: left;
 	}
-
 	results {
 		margin-top: 350px;
 	}
 
-	a.button {
+    .button {
 		background-color: #4A4F56;
 		border: none;
 		color: white;
@@ -116,20 +115,34 @@
       	<div class="middle">
 			<div class = "center">
 				<div class = "centerform">
-					<h1>Create A New Billing Group</h1>
-                    <form method="POST" action="{{ url_for('createGroup') }}">
-                        <p>
-                            <label for="groupname">Group Name:</label><br>
-                            <input type="text" name="groupname" id="gname" required>
-                        </p>
-                        <p>
-                            <label for="amount">Amount:</label><br>
-                            <input type="number" name="amount" id="amount" required>
-                        </p>
-						<p style="text-align: center;">
-							<input type="submit" value="Create Group">
-						</p>
-                    </form>
+					<h1>Group Name: {{ gname }}</h1>
+                    <h1>Amount: ${{ amount }}</h1>
+                    <h2>Group Manager: {{ mgr }}            
+                        {% if role == 0 %}
+                        <button class="button">Contact</button>
+                        {% endif %}
+                    </h2>
+				</div>
+				<div class="centertable">
+					<h3>Group Members:</h3>
+					<table id="resultsTable">
+						<thead>
+						<tr>
+							<th>Name</th>
+                            <th>Percentage</th>
+                            <th>Username</th>
+						</tr>
+						</thead>
+						<tbody id="memsList">
+						{% for member in mlist %}
+						<tr>
+                            <td>{{ member[0] }} {{ member[1] }}</td>
+							<td>{{ member[3] }}</td>
+							<td>{{ member[2] }}</td>
+						</tr>
+						{% endfor %}
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>

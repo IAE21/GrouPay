@@ -28,9 +28,9 @@ def fetch_glist():
     try:
         cur = mysql.connection.cursor()
         if session['role'] == 1:
-            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND manager_id=%s", (u_id,))
+            cur.execute("SELECT fname, lname, group_name, amount, group_num FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND manager_id=%s", (u_id,))
         else:
-            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS, PAYS_FOR WHERE USERS.user_id = BILL_GROUPS.manager_id AND PAYS_FOR.group_num = BILL_GROUPS.group_num AND PAYS_FOR.user_id=%s", (u_id,))
+            cur.execute("SELECT fname, lname, group_name, amount, BILL_GROUPS.group_num FROM USERS, BILL_GROUPS, PAYS_FOR WHERE USERS.user_id = BILL_GROUPS.manager_id AND PAYS_FOR.group_num = BILL_GROUPS.group_num AND PAYS_FOR.user_id=%s", (u_id,))
         glist = cur.fetchall()
     except Error as e:
         print(e)
@@ -160,6 +160,26 @@ def joinGroup():
         except Error as e:
             print(e)
             return render_template('searchGroups.html', role=session['role'])
+        
+@app.route('/manageGroup', methods=['GET', 'POST'])
+def manageGroup():
+    if request.method == 'POST':
+        gnum = request.form['groupnum']
+
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+            billgroup = cur.fetchall()
+            mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
+            gname = billgroup[0][2]
+            amount = billgroup[0][3]
+            cur.execute("SELECT fname, lname, username, percent FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+            mlist = cur.fetchall()
+            return render_template('manageGroup.html', role=session['role'], gname=gname, mgr=mgr_name, amount=amount, mlist=mlist)
+        except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
 
 @app.route('/logout', methods=['GET'])
 def logout():
