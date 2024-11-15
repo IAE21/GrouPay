@@ -28,9 +28,11 @@ try:
                             )"""
         db_create_groups = """CREATE TABLE IF NOT EXISTS BILL_GROUPS(
                             group_num INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                            group_name VARCHAR(100),
+                            manager_id INT NOT NULL,
+                            group_name VARCHAR(100) NOT NULL,
                             company VARCHAR(150),
-                            amount DEC(10,2) NOT NULL
+                            amount DEC(10,2) NOT NULL,
+                            FOREIGN KEY (manager_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE
                             )"""
         db_create_pays = """CREATE TABLE IF NOT EXISTS PAYS_FOR(
                             user_id INT NOT NULL,
@@ -43,8 +45,8 @@ try:
         db_admin = """CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123';"""
         db_grant = "GRANT INSERT, UPDATE, DELETE, ALTER, SELECT ON *.* TO 'admin'@'localhost';"
         with conn.cursor() as cur:
-            cur.execute(db_create_groups)
             cur.execute(db_create_users)
+            cur.execute(db_create_groups)
             cur.execute(db_create_pays)
             cur.execute(db_admin)
             cur.execute(db_grant)
