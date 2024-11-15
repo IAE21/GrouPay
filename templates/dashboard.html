@@ -112,17 +112,17 @@
 					<table id="resultsTable">
 						<thead>
 						<tr>
-							<th>Manager</th>
 							<th>Group Name</th>
 							<th>Amount</th>
+							<th>Manager</th>
 						</tr>
 						</thead>
 						<tbody id="groupsList">
 						{% for group in glist %}
 						<tr>
-							<td>{{ group[0] }}</td>
-							<td>{{ group[1] }}</td>
 							<td>{{ group[2] }}</td>
+							<td>${{ group[3] }}</td>
+							<td>{{ group[0] }} {{ group[1] }}</td>
 						</tr>
 						{% endfor %}
 						</tbody>

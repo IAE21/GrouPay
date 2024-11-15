@@ -28,9 +28,9 @@ def fetch_glist():
     try:
         cur = mysql.connection.cursor()
         if session['role'] == 1:
-            cur.execute("SELECT manager_id, group_name, amount FROM BILL_GROUPS WHERE manager_id=%s", (u_id,))
+            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND manager_id=%s", (u_id,))
         else:
-            cur.execute("SELECT manager_id, group_name, amount FROM BILL_GROUPS")
+            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS, PAYS_FOR WHERE USERS.user_id = BILL_GROUPS.manager_id AND PAYS_FOR.group_num = BILL_GROUPS.group_num AND PAYS_FOR.user_id=%s", (u_id,))
         glist = cur.fetchall()
     except Error as e:
         print(e)
@@ -125,7 +125,7 @@ def searchGroups():
         gname = request.form['groupname']
         try:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT manager_id, group_name, amount FROM BILL_GROUPS WHERE group_name=%s", (gname,))
+            cur.execute("SELECT fname, lname, group_name, amount, group_num FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_name=%s", (gname,))
             glist = cur.fetchall()
             return render_template('searchGroups.html', role=session['role'], fname=session['firstname'], glist=glist)
         except Error as e:
@@ -133,6 +133,33 @@ def searchGroups():
             return render_template('searchGroups.html', role=session['role'], fname=session['firstname'], glist=glist)
     
     return render_template('searchGroups.html', role=session['role'])
+
+@app.route('/joinGroup', methods=['POST'])
+def joinGroup():
+    if request.method == 'POST':
+        uid = session['userID']
+        gnum = request.form['groupnum']
+        count = 0
+        
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT COUNT(*) FROM (SELECT * FROM PAYS_FOR WHERE group_num=%s) AS MEMS", (gnum,))
+            results = cur.fetchall()
+            count = results[0][0]
+        except Error as e:
+            print(e)
+            
+        perc = 100/(count + 1)
+        
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT IGNORE INTO PAYS_FOR(user_id, group_num, percent) VALUES(%s, %s, %s)", (uid, gnum, perc))
+            mysql.connection.commit()
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+        except Error as e:
+            print(e)
+            return render_template('searchGroups.html', role=session['role'])
 
 @app.route('/logout', methods=['GET'])
 def logout():

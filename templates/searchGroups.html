@@ -82,7 +82,7 @@
 		margin-top: 350px;
 	}
 
-	a.button {
+	.button {
 		background-color: #4A4F56;
 		border: none;
 		color: white;
@@ -94,7 +94,6 @@
 	  }
   </style>
 </head>
-
 <body>
   <div class="container">
 		<div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
@@ -132,17 +131,23 @@
 					<table id="resultsTable">
 						<thead>
 						<tr>
-							<th>Manager</th>
 							<th>Group Name</th>
 							<th>Amount</th>
+							<th>Manager</th>
 						</tr>
 						</thead>
 						<tbody id="groupsList">
 						{% for group in glist %}
 						<tr>
-							<td>{{ group[0] }}</td>
-							<td>{{ group[1] }}</td>
 							<td>{{ group[2] }}</td>
+							<td>${{ group[3] }}</td>
+							<td>{{ group[0] }} {{ group[1] }}</td>
+							<td style="text-align:center">
+								<form method="POST" action="{{ url_for('joinGroup') }}">
+									<input type="text" name="groupnum" id="groupnum" style="display:none" value={{ group[4] }}>
+									<input type="submit" value="Join" class="button">
+								</form>
+							</td>
 						</tr>
 						{% endfor %}
 						</tbody>
