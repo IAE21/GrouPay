@@ -42,6 +42,15 @@ try:
                             FOREIGN KEY (group_num) REFERENCES BILL_GROUPS(group_num) ON DELETE CASCADE ON UPDATE CASCADE,
                             PRIMARY KEY (user_id, group_num)
                             )"""
+        db_create_friend_requests = """CREATE TABLE IF NOT EXISTS FRIEND_REQUESTS(
+                                    requester_id INT NOT NULL,
+                                    requestee_id INT NOT NULL,
+                                    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                                    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    PRIMARY KEY (requester_id, requestee_id),
+                                    FOREIGN KEY (requester_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+                                    FOREIGN KEY (requestee_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+                                    )"""
         db_admin = """CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123';"""
         db_grant = "GRANT INSERT, UPDATE, DELETE, ALTER, SELECT ON *.* TO 'admin'@'localhost';"
         with conn.cursor() as cur:
@@ -50,6 +59,7 @@ try:
             cur.execute(db_create_pays)
             cur.execute(db_admin)
             cur.execute(db_grant)
+            cur.execute(db_create_friend_requests)
         conn.commit()
 except Error as e:
     print(e)
