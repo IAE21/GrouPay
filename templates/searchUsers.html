@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Users</title>
+    <style>
+        .container {
+    	display: flex;
+    	flex-direction: column;
+    	height: 100vh;
+    }
+ 
+    .top {
+    	flex: 0 0 auto; 
+    	background-color: #7FD8B9;
+    	color: white;
+    	padding: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+    }
+
+	.links {
+		display: flex;
+		gap: 10px;
+	}
+    
+    .side {
+		flex: 0 0 100px;
+		background-color: grey;
+		padding: 10px;
+		min-height: 100vh;
+	}
+  
+	.middle {
+		flex: 1;
+		background-color: white;
+		padding: 10px;
+		min-height: 100vh;
+	}
+    
+    body {
+    	margin: 0;
+    	font-family: arial;
+    }
+
+	.center{
+		height: 200px;
+		width: 100%;
+		top: 30%;
+		left: 35%;
+		text-align: center;
+	}
+
+	.centerform{
+		left: 45%;
+		text-align: center;
+	}
+	
+	.centertable{
+		margin-top: 31px;
+		text-align: center;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 20px;
+	}
+  
+	table, th, td {
+		border: 1px solid black;
+	}
+
+	th, td {
+		padding: 10px;
+		text-align: left;
+	}
+	results {
+		margin-top: 350px;
+	}
+
+	.button {
+		background-color: #4A4F56;
+		border: none;
+		color: white;
+		padding: 10px 15px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+	  }
+    </style>
+</head>
+<body>
+    <h1>Search for Users</h1>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Enter username" required>
+        <input type="submit" value="Search">
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% if user_list %}
+        <h2>Search Results:</h2>
+        <ul>
+            {% for user in user_list %}
+                <li>
+                    {{ user[1] }}
+                    <!-- Link to view the user's profile -->
+                    <a href="{{ url_for('viewUser', user_id=user[0]) }}">View Profile</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif request.method == 'POST' %}
+        <p>No users found.</p>
+    {% endif %}
+</body>
+</html>
