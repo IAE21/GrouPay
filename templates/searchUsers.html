@@ -1,122 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Search Users</title>
     <style>
         .container {
-    	display: flex;
-    	flex-direction: column;
-    	height: 100vh;
-    }
- 
-    .top {
-    	flex: 0 0 auto; 
-    	background-color: #7FD8B9;
-    	color: white;
-    	padding: 10px;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-    }
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-	.links {
-		display: flex;
-		gap: 10px;
-	}
-    
-    .side {
-		flex: 0 0 100px;
-		background-color: grey;
-		padding: 10px;
-		min-height: 100vh;
-	}
-  
-	.middle {
-		flex: 1;
-		background-color: white;
-		padding: 10px;
-		min-height: 100vh;
-	}
-    
-    body {
-    	margin: 0;
-    	font-family: arial;
-    }
+        .top {
+            flex: 0 0 auto;
+            background-color: #7FD8B9;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-	.center{
-		height: 200px;
-		width: 100%;
-		top: 30%;
-		left: 35%;
-		text-align: center;
-	}
+        .links {
+            display: flex;
+            gap: 10px;
+        }
 
-	.centerform{
-		left: 45%;
-		text-align: center;
-	}
-	
-	.centertable{
-		margin-top: 31px;
-		text-align: center;
-	}
+        .side {
+            flex: 0 0 100px;
+            background-color: grey;
+            padding: 10px;
+            min-height: 100vh;
+        }
 
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		margin-top: 20px;
-	}
-  
-	table, th, td {
-		border: 1px solid black;
-	}
+        .middle {
+            flex: 1;
+            background-color: white;
+            padding: 10px;
+            min-height: 100vh;
+        }
 
-	th, td {
-		padding: 10px;
-		text-align: left;
-	}
-	results {
-		margin-top: 350px;
-	}
+        body {
+            margin: 0;
+            font-family: arial;
+        }
 
-	.button {
-		background-color: #4A4F56;
-		border: none;
-		color: white;
-		padding: 10px 15px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		font-size: 16px;
-	  }
+        .center {
+            text-align: center;
+        }
+
+        .centerform {
+            margin-top: 20px;
+        }
+
+        .centertable {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .button {
+            background-color: #4A4F56;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .alert {
+            margin-top: 20px;
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <h1>Search for Users</h1>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Enter username" required>
-        <input type="submit" value="Search">
-    </form>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    {% if user_list %}
-        <h2>Search Results:</h2>
-        <ul>
-            {% for user in user_list %}
-                <li>
-                    {{ user[1] }}
-                    <!-- Link to view the user's profile -->
-                    <a href="{{ url_for('viewUser', user_id=user[0]) }}">View Profile</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% elif request.method == 'POST' %}
-        <p>No users found.</p>
-    {% endif %}
+    <div class="container">
+        <div class="top">
+            <img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
+            <div class="links">
+                <div><a href="/dashboard" style="color: white;">Dashboard</a></div>
+                {% if role == 1 %}
+                <div><a href="/createGroup" style="color: white;">Create New Billing Group</a></div>
+                {% endif %}
+                <div><a href="/searchGroups" style="color: white;">Search for Groups</a></div>
+                <div><a href="/searchUsers" style="color: white;">Search for Users</a></div>
+                <div><a href="/dashboard" style="color: white;">Send an Invite</a></div>
+                <div><a href="/dashboard" style="color: white;">Friends</a></div>
+                <div><a href="/dashboard" style="color: white;">My Profile</a></div>
+                <div><a href="/logout" style="color: white;">Sign out</a></div>
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div class="side"></div>
+            <div class="middle">
+                <div class="center">
+                    <h1>Search for Users</h1>
+                    <div class="centerform">
+                        <form method="POST">
+                            <input type="text" name="username" placeholder="Enter username" required>
+                            <input type="submit" value="Search" class="button">
+                        </form>
+                    </div>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert {{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <div class="centertable">
+                        {% if user_list %}
+                            <h2>Search Results:</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in user_list %}
+                                    <tr>
+                                        <td>{{ user[1] }}</td>
+                                        <td>
+                                            <a href="{{ url_for('viewUser', user_id=user[0]) }}" class="button">View Profile</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% elif request.method == 'POST' %}
+                            <p>No users found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="side"></div>
+        </div>
+    </div>
 </body>
 </html>
