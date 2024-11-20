@@ -180,6 +180,69 @@ def manageGroup():
             print(e)
             glist = fetch_glist()
             return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+        
+@app.route('/searchUsers', methods=['GET', 'POST'])
+def searchUsers():
+    if request.method == 'POST':
+        search_username = request.form['username']
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT user_id, username FROM USERS WHERE username LIKE %s AND user_id != %s", ('%' + search_username + '%', session['userID']))
+            user_list = cur.fetchall()
+            return render_template('searchUsers.html', user_list=user_list)
+        except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+    else:
+        # GET
+        return render_template('searchUsers.html')
+
+@app.route('/viewUser/<int:user_id>', methods=['GET'])
+def viewUser(user_id):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT user_id, fname, lname, username FROM USERS WHERE user_id = %s", (user_id,))
+        user = cur.fetchone()
+        if not user:
+            flash('User not found.', category='error')
+            return redirect(url_for('searchUsers'))
+        return render_template('viewUser.html', user=user)
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+
+@app.route('/sendFriendRequest', methods=['POST'])
+def sendFriendRequest():
+    requester_id = session['userID']
+    requestee_id = request.form['user_id']
+    if requester_id == int(requestee_id):
+        flash('You cannot send a friend request to yourself.', category='error')
+        return redirect(url_for('viewUser', user_id=requestee_id))
+
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM FRIEND_REQUESTS WHERE requester_id = %s AND requestee_id = %s", (requester_id, requestee_id))
+        existing_request = cur.fetchone()
+        if existing_request:
+            flash('Friend request already sent.', category='error')
+        else:
+            cur.execute("INSERT INTO FRIEND_REQUESTS (requester_id, requestee_id) VALUES (%s, %s)", (requester_id, requestee_id))
+            mysql.connection.commit()
+            flash('Friend request sent!', category='success')
+        return redirect(url_for('viewUser', user_id=requestee_id))
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+
+@app.route('/sendGroupInvite', methods=['POST'])
+def sendGroupInvite():
+    flash('Send Group Invite functionality is not implemented', category='info')
+    user_id = request.form['user_id']
+    return redirect(url_for('viewUser', user_id=user_id))
+
 
 @app.route('/logout', methods=['GET'])
 def logout():
