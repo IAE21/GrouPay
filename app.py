@@ -223,15 +223,152 @@ def sendFriendRequest():
 
     try:
         cur = mysql.connection.cursor()
+
+        cur.execute("""
+            SELECT * FROM FRIENDS WHERE (user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)
+            """, (requester_id, requestee_id, requestee_id, requester_id))
+        existing_friendship = cur.fetchone()
+        if existing_friendship:
+            flash('You are already friends with this user.', category='error')
+            return redirect(url_for('viewUser', user_id=requestee_id))
+        
         cur.execute("SELECT * FROM FRIEND_REQUESTS WHERE requester_id = %s AND requestee_id = %s", (requester_id, requestee_id))
         existing_request = cur.fetchone()
         if existing_request:
             flash('Friend request already sent.', category='error')
+
         else:
             cur.execute("INSERT INTO FRIEND_REQUESTS (requester_id, requestee_id) VALUES (%s, %s)", (requester_id, requestee_id))
             mysql.connection.commit()
             flash('Friend request sent!', category='success')
         return redirect(url_for('viewUser', user_id=requestee_id))
+    
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+
+@app.route('/friends', methods=['GET'])
+def friends():
+    user_id = session['userID']
+    try: 
+        cur = mysql.connection.cursor()
+
+        # USERS FRIENDS
+        cur.execute("""
+            SELECT USERS.user_id, USERS.fname, USERS.lname, USERS.username FROM FRIENDS
+            JOIN USERS ON FRIENDS.friend_id = USERS.user_id
+            WHERE FRIENDS.user_id = %s
+            """, (user_id,))
+        friends_list = cur.fetchall()
+
+        # REQUESTS
+        cur.execute("""
+            SELECT USERS.user_id, USERS.fname, USERS.lname, USERS.username FROM FRIEND_REQUESTS
+            JOIN USERS ON FRIEND_REQUESTS.requester_id = USERS.user_id
+            WHERE FRIEND_REQUESTS.requestee_id = %s AND FRIEND_REQUESTS.status = 'pending'
+            """, (user_id,))
+        friend_requests = cur.fetchall()
+
+        return render_template('friends.html', friends_list=friends_list, friend_requests=friend_requests, role=session.get('role'), fname=session.get('firstname'))
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+    
+@app.route('/acceptFriendRequest', methods=['POST'])
+def acceptFriendRequest():
+    user_id = session['userID']
+    requester_id = request.form['requester_id']
+    try:
+        cur = mysql.connection.cursor()
+
+        cur.execute("""
+            DELETE FROM FRIEND_REQUESTS 
+            WHERE requester_id = %s AND requestee_id = %s
+            """, (requester_id, user_id))
+        
+        cur.execute("""
+            UPDATE FRIEND_REQUESTS SET status = 'accepted' 
+            WHERE requester_id = %s AND requestee_id = %s
+            """, (requester_id, user_id))
+        
+        cur.execute("""
+            INSERT IGNORE INTO FRIENDS (user_id, friend_id) VALUES (%s, %s), (%s, %s)
+            """, (user_id, requester_id, requester_id, user_id))
+        mysql.connection.commit()
+
+        flash('Friend request accepted.', category='success')
+        return redirect(url_for('friends'))
+    
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+    
+@app.route('/declineFriendRequest', methods=['POST'])
+def declineFriendRequest():
+    user_id = session['userID']
+    requester_id = request.form['requester_id']
+    try:
+        cur = mysql.connection.cursor()
+
+        cur.execute("""
+            DELETE FROM FRIEND_REQUESTS 
+            WHERE requester_id = %s AND requestee_id = %s
+            """, (requester_id, user_id))
+        mysql.connection.commit()
+
+        flash('Friend request declined.', category='success')
+        return redirect(url_for('friends'))
+    
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+
+@app.route('/removeFriend', methods=['POST'])
+def removeFriend():
+    user_id = session['userID']
+    friend_id = request.form['friend_id']
+    try:
+        cur = mysql.connection.cursor()
+
+        cur.execute("""
+            DELETE FROM FRIENDS WHERE (user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)
+            """, (user_id, friend_id, friend_id, user_id))
+        mysql.connection.commit()
+
+        cur.execute("""
+            DELETE FROM FRIEND_REQUESTS WHERE (requester_id = %s AND requestee_id = %s) OR (requester_id = %s AND requestee_id = %s)
+            """, (user_id, friend_id, friend_id, user_id))
+        mysql.connection.commit()
+
+        flash('Friend removed.', category='success')
+        return redirect(url_for('friends'))
+    
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+
+@app.route('/inviteToGroup', methods=['POST'])
+def inviteToGroup():
+    user_id = session['userID']
+    friend_id = request.form['friend_id']
+    try:
+        cur = mysql.connection.cursor()
+        
+        cur.execute("""
+            SELECT group_num, group_name FROM BILL_GROUPS WHERE manager_id = %s
+            """, (user_id,))
+        groups = cur.fetchall()
+
+        if not groups:
+            flash('You do not manage any groups to invite friends to.', category='error')
+            return redirect(url_for('friends'))
+        return render_template('inviteToGroup.html', groups=groups, friend_id=friend_id)
+    
     except Error as e:
             print(e)
             glist = fetch_glist()
@@ -239,9 +376,31 @@ def sendFriendRequest():
 
 @app.route('/sendGroupInvite', methods=['POST'])
 def sendGroupInvite():
-    flash('Send Group Invite functionality is not implemented', category='info')
-    user_id = request.form['user_id']
-    return redirect(url_for('viewUser', user_id=user_id))
+    sender_id = session['userID']
+    receiver_id = request.form['receiver_id']
+    group_num = request.form['group_num']
+    try:
+        cur = mysql.connection.cursor()
+        
+        cur.execute("""
+            SELECT * FROM GROUP_INVITES WHERE group_num = %s AND receiver_id = %s
+            """, (group_num, receiver_id))
+        existing_invite = cur.fetchone()
+
+        if existing_invite:
+            flash('An invite to this group has already been sent to this user.', category='error')
+        else:
+            cur.execute("""
+                INSERT INTO GROUP_INVITES (group_num, sender_id, receiver_id) VALUES (%s, %s, %s)
+                """, (group_num, sender_id, receiver_id))
+            mysql.connection.commit()
+            flash('Group invite sent', category='success')
+        return redirect(url_for('friends'))
+    
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
 
 
 @app.route('/logout', methods=['GET'])
