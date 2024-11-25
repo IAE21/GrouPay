@@ -104,9 +104,9 @@
 				<div><a href="/createGroup" style="color: white;">Create New Billing Group</a></div>
 				{% endif %}
 				<div><a href = "/searchGroups" style="color: white;">Search for Groups</a></div>
-				<div><a href = "/dashboard" style="color: white;">Search for Users</a></div>
+				<div><a href = "/searchUsers" style="color: white;">Search for Users</a></div>
 				<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
-				<div><a href = "/dashboard" style="color: white;">Friends</a></div>
+				<div><a href = "/friends" style="color: white;">Friends</a></div>
 				<div><a href = "/dashboard" style="color: white;">My Profile</a></div>
 				<div><a href = "/logout" style="color: white;">Sign out</a></div>
 			</div>
@@ -144,6 +144,39 @@
 						{% endfor %}
 						</tbody>
 					</table>
+					{% if pending_invites %}
+					<h3>Pending Group Invites:</h3>
+					<table id="invitesTable">
+						<thead>
+							<tr>
+								<th>Group Name</th>
+								<th>Invited By</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for invite in pending_invites %}
+							<tr>
+								<td>{{ invite[1] }}</td>
+								<td>{{ invite[2] }} {{ invite[3] }}</td>
+								<td>
+									<form method="POST" action="{{ url_for('acceptGroupInvite') }}" style="display:inline;">
+										<input type="hidden" name="group_num" value="{{ invite[0] }}">
+										<input type="hidden" name="sender_id" value="{{ invite[4] }}">
+										<input type="submit" value="Accept" class="button">
+									</form>
+									<form method="POST" action="{{ url_for('declineGroupInvite') }}" style="display:inline;">
+										<input type="hidden" name="group_num" value="{{ invite[0] }}">
+										<input type="submit" value="Decline" class="button">
+									</form>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+					{% else %}
+					<p>No incoming group invites</p>
+					{% endif %}
 				</div>
 			</div>
 		</div>
