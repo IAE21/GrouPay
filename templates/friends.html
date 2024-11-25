@@ -95,8 +95,8 @@
                         {% endif %}
                     {% endwith %}
 
-                    {% if friends_list %}
                     <h2>Friends:</h2>
+                    {% if friends_list %}
                     <table>
                         <thead>
                             <tr>
@@ -125,11 +125,11 @@
                         </tbody>
                     </table>
                     {% else %}
-                    <p>You have no friends yet.</p>
+                    <p>You have no friends</p>
                     {% endif %}
 
-                    {% if friend_requests %}
                     <h2>Pending Friend Requests:</h2>
+                    {% if friend_requests %}
                     <table>
                         <thead>
                             <tr>
