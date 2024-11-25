@@ -46,7 +46,6 @@ try:
                                         requester_id INT NOT NULL,
                                         requestee_id INT NOT NULL,
                                         status VARCHAR(20) NOT NULL DEFAULT 'pending',
-                                        request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                         PRIMARY KEY (requester_id, requestee_id),
                                         FOREIGN KEY (requester_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
                                         FOREIGN KEY (requestee_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -54,7 +53,6 @@ try:
         db_create_friends = """CREATE TABLE IF NOT EXISTS FRIENDS(
                                 user_id INT NOT NULL,
                                 friend_id INT NOT NULL,
-                                friendship_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                 PRIMARY KEY (user_id, friend_id),
                                 FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
                                 FOREIGN KEY (friend_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -64,7 +62,6 @@ try:
                                     sender_id INT NOT NULL,
                                     receiver_id INT NOT NULL,
                                     status VARCHAR(20) NOT NULL DEFAULT 'pending',
-                                    invite_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                     PRIMARY KEY (group_num, receiver_id),
                                     FOREIGN KEY (group_num) REFERENCES BILL_GROUPS(group_num) ON DELETE CASCADE ON UPDATE CASCADE,
                                     FOREIGN KEY (sender_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
