@@ -44,6 +44,12 @@
             font-family: arial;
         }
 
+        table {
+            width: 75%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
         .center {
             text-align: center;
         }
@@ -58,6 +64,7 @@
             font-size: 16px;
             cursor: pointer;
             margin: 5px;
+            border-radius: 8px;
         }
 
         .alert {
@@ -95,14 +102,13 @@
                         {% endif %}
                     {% endwith %}
 
-                    <h2>Friends:</h2>
                     {% if friends_list %}
                     <table>
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Username</th>
-                                <th>Actions</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,7 +131,7 @@
                         </tbody>
                     </table>
                     {% else %}
-                    <p>You have no friends</p>
+                    <p>You have no friends.</p>
                     {% endif %}
 
                     <h2>Pending Friend Requests:</h2>
@@ -135,7 +141,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Username</th>
-                                <th>Actions</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>

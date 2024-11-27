@@ -36,6 +36,34 @@ def fetch_glist():
         print(e)
     return glist
     
+def fetch_invlist():
+    u_id = session['userID']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+                    SELECT GROUP_INVITES.group_num, BILL_GROUPS.group_name, BILL_GROUPS.amount,
+                        USERS.fname, USERS.lname, GROUP_INVITES.sender_id
+                    FROM GROUP_INVITES
+                    JOIN BILL_GROUPS ON GROUP_INVITES.group_num = BILL_GROUPS.group_num
+                    JOIN USERS ON GROUP_INVITES.sender_id = USERS.user_id
+                    WHERE GROUP_INVITES.receiver_id = %s AND GROUP_INVITES.status = 'pending'
+                    """, (u_id,))
+        pending_invites = cur.fetchall()
+        mgr_names = []
+        for inv in pending_invites:
+            cur.execute("""SELECT fname, lname FROM USERS JOIN BILL_GROUPS ON manager_id = user_id WHERE group_num = %s""", (inv[0],))
+            mgrs = cur.fetchall()
+            mgr_names.append(mgrs[0])
+    except Error as e:
+        print(e)
+    return (pending_invites, mgr_names)
+        
+def check_empty(pending_invlist):
+    if len(pending_invlist[0]) > 0 and len(pending_invlist[1]) > 0:
+        no_invs = "false"
+    else:
+        no_invs = "true"
+    return no_invs
     
 @app.route('/')
 def home():
@@ -60,7 +88,9 @@ def login():
                 session['username'] = results[0][4]
                 session['role'] = results[0][6]
                 glist = fetch_glist()
-                return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+                pending_invlist = fetch_invlist()
+                no_invs = check_empty(pending_invlist)
+                return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
             flash('Incorrect username or password.', category='error')
         except Error as e:
             print(e)
@@ -97,18 +127,9 @@ def register():
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     glist = fetch_glist()
-    user_id = session['userID']
-    cur = mysql.connection.cursor()
-    cur.execute("""
-                SELECT GROUP_INVITES.group_num, BILL_GROUPS.group_name,
-                    USERS.fname, USERS.lname, GROUP_INVITES.sender_id
-                FROM GROUP_INVITES
-                JOIN BILL_GROUPS ON GROUP_INVITES.group_num = BILL_GROUPS.group_num
-                JOIN USERS ON GROUP_INVITES.sender_id = USERS.user_id
-                WHERE GROUP_INVITES.receiver_id = %s AND GROUP_INVITES.status = 'pending'
-                """, (user_id,))
-    pending_invites = cur.fetchall()
-    return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=pending_invites)
+    pending_invlist = fetch_invlist()
+    no_invs = check_empty(pending_invlist)
+    return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/createGroup', methods=['GET', 'POST'])
 def createGroup():
@@ -123,7 +144,9 @@ def createGroup():
             cur.execute("INSERT IGNORE INTO BILL_GROUPS(manager_id, group_name, company, amount) VALUES(%s, %s, %s, %s)", (mgrID, gname, comp, amt))
             mysql.connection.commit()
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
         except Error as e:
             print(e)
             return render_template('createGroup.html', role=session['role'])
@@ -167,7 +190,9 @@ def joinGroup():
             cur.execute("INSERT IGNORE INTO PAYS_FOR(user_id, group_num, percent) VALUES(%s, %s, %s)", (uid, gnum, perc))
             mysql.connection.commit()
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
         except Error as e:
             print(e)
             return render_template('searchGroups.html', role=session['role'])
@@ -190,7 +215,9 @@ def manageGroup():
         except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
         
 @app.route('/searchUsers', methods=['GET', 'POST'])
 def searchUsers():
@@ -198,7 +225,7 @@ def searchUsers():
         search_username = request.form['username']
         try:
             cur = mysql.connection.cursor()
-            cur.execute("""SELECT user_id, username FROM USERS 
+            cur.execute("""SELECT user_id, fname, lname, username FROM USERS 
                         WHERE username LIKE %s 
                         AND user_id != %s
                         """, ('%' + search_username + '%', session['userID']))
@@ -208,7 +235,9 @@ def searchUsers():
         except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
     else:
         # GET
         return render_template('searchUsers.html', role=session['role'])
@@ -229,7 +258,9 @@ def viewUser(user_id):
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/sendFriendRequest', methods=['POST'])
 def sendFriendRequest():
@@ -266,7 +297,9 @@ def sendFriendRequest():
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/friends', methods=['GET'])
 def friends():
@@ -294,7 +327,9 @@ def friends():
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
     
 @app.route('/acceptFriendRequest', methods=['POST'])
 def acceptFriendRequest():
@@ -318,13 +353,15 @@ def acceptFriendRequest():
                     """, (user_id, requester_id, requester_id, user_id))
         mysql.connection.commit()
 
-        flash('Friend request accepted.', category='success')
+        flash('Friend request accepted!', category='success')
         return redirect(url_for('friends'))
     
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
     
 @app.route('/declineFriendRequest', methods=['POST'])
 def declineFriendRequest():
@@ -345,7 +382,9 @@ def declineFriendRequest():
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/removeFriend', methods=['POST'])
 def removeFriend():
@@ -374,7 +413,9 @@ def removeFriend():
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/inviteToGroup', methods=['POST'])
 def inviteToGroup():
@@ -392,14 +433,16 @@ def inviteToGroup():
         groups = cur.fetchall()
 
         if not groups:
-            flash('You are not a member of any groups', category='error')
+            flash('You are not a member of any groups.', category='error')
             return redirect(url_for('friends'))
         return render_template('inviteToGroup.html', groups=groups, friend_id=friend_id)
     
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/sendGroupInvite', methods=['POST'])
 def sendGroupInvite():
@@ -428,16 +471,18 @@ def sendGroupInvite():
             flash('An invite to this group has already been sent to this user.', category='error')
         else:
             cur.execute("""
-                        INSERT INTO GROUP_INVITES (group_num, sender_id, receiver_id) VALUES (%s, %s, %s)
+                        INSERT IGNORE INTO GROUP_INVITES (group_num, sender_id, receiver_id) VALUES (%s, %s, %s)
                         """, (group_num, sender_id, receiver_id))
             mysql.connection.commit()
-            flash('Group invite sent', category='success')
+            flash('Group invite sent!', category='success')
         return redirect(url_for('friends'))
     
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/acceptGroupInvite', methods=['POST'])
 def acceptGroupInvite():
@@ -448,7 +493,7 @@ def acceptGroupInvite():
         cur = mysql.connection.cursor()
         
         cur.execute("""
-                    UPDATE GROUP_INVITES SET status = 'accepted' 
+                    DELETE FROM GROUP_INVITES 
                     WHERE group_num = %s AND receiver_id = %s
                     """, (group_num, user_id))
         
@@ -469,13 +514,15 @@ def acceptGroupInvite():
                     """, (user_id, group_num, new_percent))
         
         mysql.connection.commit()
-        flash('You have joined the group', category='success')
+        flash('You have joined the group!', category='success')
         return redirect(url_for('dashboard'))
     
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/declineGroupInvite', methods=['POST'])
 def declineGroupInvite():
@@ -486,7 +533,7 @@ def declineGroupInvite():
         cur = mysql.connection.cursor()
         
         cur.execute("""
-                    UPDATE GROUP_INVITES SET status = 'declined'
+                    DELETE FROM GROUP_INVITES
                     WHERE group_num = %s AND receiver_id = %s
                     """, (group_num, user_id))
         mysql.connection.commit()
@@ -496,7 +543,9 @@ def declineGroupInvite():
     except Error as e:
             print(e)
             glist = fetch_glist()
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist)
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 
 @app.route('/logout', methods=['GET'])

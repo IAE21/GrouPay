@@ -81,6 +81,7 @@
             text-decoration: none;
             font-size: 16px;
             cursor: pointer;
+            border-radius: 8px;
         }
 
         .alert {
@@ -113,8 +114,9 @@
                     <h1>Search for Users</h1>
                     <div class="centerform">
                         <form method="POST">
-                            <input type="text" name="username" placeholder="Enter username" required>
-                            <input type="submit" value="Search" class="button">
+                            <label for="username">Username:</label><br>
+                            <input type="text" name="username" placeholder="ex: jsmith@example.com" required>
+                            <p><input type="submit" value="Search" class="button"></p>
                         </form>
                     </div>
                     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -130,15 +132,17 @@
                             <table>
                                 <thead>
                                     <tr>
+                                        <th>Name</th>
                                         <th>Username</th>
-                                        <th>Actions</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for user in user_list %}
                                     <tr>
-                                        <td>{{ user[1] }}</td>
-                                        <td>
+                                        <td>{{ user[1] }} {{ user[2] }}</td>
+                                        <td>{{ user[3] }}</td>
+                                        <td style="text-align:center; padding:20px">
                                             <a href="{{ url_for('viewUser', user_id=user[0]) }}" class="button">View Profile</a>
                                         </td>
                                     </tr>

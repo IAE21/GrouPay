@@ -90,6 +90,8 @@
 		text-decoration: none;
 		display: inline-block;
 		font-size: 16px;
+		cursor: pointer;
+		border-radius: 8px;
 	  }
 
   </style>
@@ -119,7 +121,7 @@
 					<h1>Hello, {{ fname }}!</h1>
 				</div>
 				<div class="centertable">
-					<h3>Your Groups:</h3>
+					<h2>Your Groups:</h2>
 					<table id="resultsTable">
 						<thead>
 						<tr>
@@ -144,28 +146,31 @@
 						{% endfor %}
 						</tbody>
 					</table>
-					{% if pending_invites %}
+					{% if no_invs == "false" %}
 					<h3>Pending Group Invites:</h3>
 					<table id="invitesTable">
 						<thead>
 							<tr>
 								<th>Group Name</th>
+								<th>Amount</th>
+								<th>Manager</th>
 								<th>Invited By</th>
-								<th>Actions</th>
 							</tr>
 						</thead>
 						<tbody>
-							{% for invite in pending_invites %}
+							{% for invite, mgr in pending_invites %}
 							<tr>
 								<td>{{ invite[1] }}</td>
-								<td>{{ invite[2] }} {{ invite[3] }}</td>
-								<td>
-									<form method="POST" action="{{ url_for('acceptGroupInvite') }}" style="display:inline;">
+								<td>{{ invite[2] }}</td>
+								<td>{{ mgr[0] }} {{ mgr[1] }}</td>
+								<td>{{ invite[3] }} {{ invite[4] }}</td>
+								<td style="text-align:center;">
+									<form method="POST" action="{{ url_for('acceptGroupInvite') }}" style="display:inline; padding-right: 10px;">
 										<input type="hidden" name="group_num" value="{{ invite[0] }}">
 										<input type="hidden" name="sender_id" value="{{ invite[4] }}">
 										<input type="submit" value="Accept" class="button">
 									</form>
-									<form method="POST" action="{{ url_for('declineGroupInvite') }}" style="display:inline;">
+									<form method="POST" action="{{ url_for('declineGroupInvite') }}" style="display:inline; padding-left: 10px;">
 										<input type="hidden" name="group_num" value="{{ invite[0] }}">
 										<input type="submit" value="Decline" class="button">
 									</form>
@@ -175,7 +180,7 @@
 						</tbody>
 					</table>
 					{% else %}
-					<p>No incoming group invites</p>
+					<p>No incoming group invites.</p>
 					{% endif %}
 				</div>
 			</div>

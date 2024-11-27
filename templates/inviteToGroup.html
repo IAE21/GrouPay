@@ -89,6 +89,8 @@
 		text-decoration: none;
 		display: inline-block;
 		font-size: 16px;
+		cursor: pointer;
+		border-radius: 8px;
 	  }
     </style>
 </head>
@@ -121,7 +123,7 @@
                             <option value="{{ group[0] }}">{{ group[1] }}</option>
                             {% endfor %}
                         </select>
-                        <input type="submit" value="Send Invite" class="button">
+                        <input type="submit" value="Send Invite" class="button" style="margin-left: 15px;">
                     </form>
                 </div>
             </div>

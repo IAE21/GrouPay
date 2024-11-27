@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search</title>
+  <title>Search Groups</title>
   <style>
     .container {
     	display: flex;
@@ -91,6 +91,8 @@
 		text-decoration: none;
 		display: inline-block;
 		font-size: 16px;
+		cursor: pointer;
+		border-radius: 8px;
 	  }
   </style>
 </head>
@@ -119,39 +121,43 @@
                     <form method="POST" action="{{ url_for('searchGroups') }}">
                         <p>
                             <label for="groupname">Group Name:</label><br>
-                            <input type="text" name="groupname" id="groupname">
+                            <input type="text" name="groupname" id="groupname" placeholder="ex: Apt 101" required>
                         </p>
 						<p style="text-align: center;">
-							<input type="submit" value="Search">
+							<input type="submit" value="Search" class="button">
 						</p>
                     </form>
 				</div>
 				<div class="centertable">
-					<h3>Groups Found:</h3>
-					<table id="resultsTable">
-						<thead>
-						<tr>
-							<th>Group Name</th>
-							<th>Amount</th>
-							<th>Manager</th>
-						</tr>
-						</thead>
-						<tbody id="groupsList">
-						{% for group in glist %}
-						<tr>
-							<td>{{ group[2] }}</td>
-							<td>${{ group[3] }}</td>
-							<td>{{ group[0] }} {{ group[1] }}</td>
-							<td style="text-align:center">
-								<form method="POST" action="{{ url_for('joinGroup') }}">
-									<input type="text" name="groupnum" id="groupnum" style="display:none" value={{ group[4] }}>
-									<input type="submit" value="Join" class="button">
-								</form>
-							</td>
-						</tr>
-						{% endfor %}
-						</tbody>
-					</table>
+					{% if glist %}
+						<h3>Groups Found:</h3>
+						<table id="resultsTable">
+							<thead>
+							<tr>
+								<th>Group Name</th>
+								<th>Amount</th>
+								<th>Manager</th>
+							</tr>
+							</thead>
+							<tbody id="groupsList">
+							{% for group in glist %}
+							<tr>
+								<td>{{ group[2] }}</td>
+								<td>${{ group[3] }}</td>
+								<td>{{ group[0] }} {{ group[1] }}</td>
+								<td style="text-align:center">
+									<form method="POST" action="{{ url_for('joinGroup') }}">
+										<input type="text" name="groupnum" id="groupnum" style="display:none" value={{ group[4] }}>
+										<input type="submit" value="Join" class="button">
+									</form>
+								</td>
+							</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+					{% elif request.method == 'POST' %}
+						<p>No groups found.</p>
+					{% endif %}
 				</div>
 			</div>
 		</div>
