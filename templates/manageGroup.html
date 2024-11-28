@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manage</title>
+  <title>Manage Group</title>
   <style>
     .container {
     	display: flex;
@@ -90,26 +90,28 @@
 		text-decoration: none;
 		display: inline-block;
 		font-size: 16px;
+		cursor: pointer;
+		border-radius: 8px;
 	  }
   </style>
 </head>
 
 <body>
   <div class="container">
-		<div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
-			<div class="links">
-				<div><a href="/dashboard" style="color: white;">Dashboard</a></div>
-				{% if role == 1 %}
-				<div><a href="/createGroup" style="color: white;">Create New Billing Group</a></div>
-				{% endif %}
-				<div><a href = "/searchGroups" style="color: white;">Search for Groups</a></div>
-				<div><a href = "/dashboard" style="color: white;">Search for Users</a></div>
-				<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
-				<div><a href = "/dashboard" style="color: white;">Friends</a></div>
-				<div><a href = "/dashboard" style="color: white;">My Profile</a></div>
-				<div><a href = "/logout" style="color: white;">Sign out</a></div>
-			</div>
+	<div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
+		<div class="links">
+			<div><a href="/dashboard" style="color: white;">Dashboard</a></div>
+			{% if role == 1 %}
+			<div><a href="/createGroup" style="color: white;">Create New Billing Group</a></div>
+			{% endif %}
+			<div><a href = "/searchGroups" style="color: white;">Search for Groups</a></div>
+			<div><a href = "/searchUsers" style="color: white;">Search for Users</a></div>
+			<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
+			<div><a href = "/friends" style="color: white;">Friends</a></div>
+			<div><a href = "/dashboard" style="color: white;">My Profile</a></div>
+			<div><a href = "/logout" style="color: white;">Sign out</a></div>
 		</div>
+	</div>
     <div style="display: flex;">
       	<div class="side"></div>
       	<div class="middle">
