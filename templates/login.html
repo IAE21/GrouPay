@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-       <title>Login</title> 
+       <title>Login</title>
     </head>
     <style>
         body {
@@ -24,9 +24,22 @@
             font-size: 16px;
             border-radius: 8px;
           }
+        #logo {
+            width: 500px;
+            animation: float 3s ease-in-out infinite
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
     </style>
     <body>
-        <img src="{{url_for('static', filename='images/logo.png')}}" alt="GrouPay">
+        <img id="logo" src="{{url_for('static', filename='images/logo.png')}}" alt="GrouPay">
         <h1>GrouPay Login</h1>
         <form method="POST" action="{{ url_for('login') }}">
             <p>
