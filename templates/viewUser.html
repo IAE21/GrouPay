@@ -94,10 +94,59 @@
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
-                    <form method="POST" action="{{ url_for('sendFriendRequest') }}">
-                        <input type="hidden" name="user_id" value="{{ user[0] }}">
-                        <input type="submit" value="Send Friend Request" class="button">
-                    </form>
+                    </div>
+
+                    <div class="profile-info">
+                        <h2>User Information</h2>
+                        <div class="profile-details">
+                            <p><strong>Full Name:</strong> {{ user[1] }} {{ user[2] }}</p>
+                            <p><strong>Username:</strong> {{ user[3] }}</p>
+                            <p><strong>Company:</strong> {% if user[5] == 1 and user[4] %}{{ user[4] }}{% else %}N/A{% endif %}</p>
+                            <p><strong>Account Type:</strong> {% if user[5] == 1 %}Corporate{% else %}Private{% endif %}</p>
+                        </div>
+                        <form method="POST" action="{{ url_for('sendFriendRequest') }}">
+                            <input type="hidden" name="user_id" value="{{ user[0] }}">
+                            <input type="submit" value="Send Friend Request" class="button">
+                        </form>
+                    </div>
+
+                    <div class="groups-info">
+                        {% if role == 1 %}
+                        <h2>Groups managed by {{ user[1] }}</h2>
+                        {% else %}
+                        <h2>Groups {{ user[1] }} is in</h2>
+                        {% endif %}
+                        {% if groups and groups|length > 0 %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Group Name</th>
+                                    <th>Amount</th>
+                                    {% if role == 0 %}
+                                    <th>Managed By</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for g in groups %}
+                                <tr>
+                                    <td>{{ g[1] }}</td>
+                                    <td>{{ g[2] }}</td>
+                                    {% if role == 0 %}
+                                    <td>{{ g[3] }} {{ g[4] }}</td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                            {% if role == 1 %}
+                            <p>This corporate user does not manage any groups.</p>
+                            {% else %}
+                            <p>This private user is not currently in any groups.</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="side"></div>
