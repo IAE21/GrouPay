@@ -1,8 +1,7 @@
 from flask import Flask, render_template, session, request, redirect, url_for, flash
-from flask_login import login_user, login_required, logout_user, current_user, LoginManager
+from flask_login import LoginManager
 from flask_mysqldb import MySQL
 from mysql.connector import Error
-from functools import wraps
 import setup
 
 app = Flask(__name__)
@@ -90,7 +89,7 @@ def login():
                 glist = fetch_glist()
                 pending_invlist = fetch_invlist()
                 no_invs = check_empty(pending_invlist)
-                return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+                return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
             flash('Incorrect username or password.', category='error')
         except Error as e:
             print(e)
@@ -129,7 +128,7 @@ def dashboard():
     glist = fetch_glist()
     pending_invlist = fetch_invlist()
     no_invs = check_empty(pending_invlist)
-    return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+    return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/createGroup', methods=['GET', 'POST'])
 def createGroup():
@@ -146,12 +145,12 @@ def createGroup():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
         except Error as e:
             print(e)
-            return render_template('createGroup.html', role=session['role'])
+            return render_template('createGroup.html', user=session )
     
-    return render_template('createGroup.html', role=session['role'])
+    return render_template('createGroup.html', user=session, )
 
 @app.route('/searchGroups', methods=['GET', 'POST'])
 def searchGroups():
@@ -161,12 +160,12 @@ def searchGroups():
             cur = mysql.connection.cursor()
             cur.execute("SELECT fname, lname, group_name, amount, group_num FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_name=%s", (gname,))
             glist = cur.fetchall()
-            return render_template('searchGroups.html', role=session['role'], fname=session['firstname'], glist=glist)
+            return render_template('searchGroups.html', user=session, glist=glist)
         except Error as e:
             print(e)
-            return render_template('searchGroups.html', role=session['role'], fname=session['firstname'], glist=glist)
+            return render_template('searchGroups.html', user=session, glist=glist)
     
-    return render_template('searchGroups.html', role=session['role'])
+    return render_template('searchGroups.html', user=session)
 
 @app.route('/joinGroup', methods=['POST'])
 def joinGroup():
@@ -192,10 +191,10 @@ def joinGroup():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
         except Error as e:
             print(e)
-            return render_template('searchGroups.html', role=session['role'])
+            return render_template('searchGroups.html', user=session)
         
 @app.route('/manageGroup', methods=['GET', 'POST'])
 def manageGroup():
@@ -211,13 +210,13 @@ def manageGroup():
             amount = billgroup[0][3]
             cur.execute("SELECT fname, lname, username, percent FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
             mlist = cur.fetchall()
-            return render_template('manageGroup.html', role=session['role'], gname=gname, mgr=mgr_name, amount=amount, mlist=mlist)
+            return render_template('manageGroup.html', user=session, gname=gname, mgr=mgr_name, amount=amount, mlist=mlist)
         except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
         
 @app.route('/searchUsers', methods=['GET', 'POST'])
 def searchUsers():
@@ -230,17 +229,17 @@ def searchUsers():
                         AND user_id != %s
                         """, ('%' + search_username + '%', session['userID']))
             user_list = cur.fetchall()
-            return render_template('searchUsers.html', role=session['role'], user_list=user_list)
+            return render_template('searchUsers.html', user=session, user_list=user_list)
         
         except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
     else:
         # GET
-        return render_template('searchUsers.html', role=session['role'])
+        return render_template('searchUsers.html', user=session)
 
 @app.route('/viewUser/<int:user_id>', methods=['GET'])
 def viewUser(user_id):
@@ -253,14 +252,14 @@ def viewUser(user_id):
         if not user:
             flash('User not found.', category='error')
             return redirect(url_for('searchUsers'))
-        return render_template('viewUser.html', user=user)
+        return render_template('viewUser.html', found_user=user)
         
     except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/sendFriendRequest', methods=['POST'])
 def sendFriendRequest():
@@ -299,7 +298,7 @@ def sendFriendRequest():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/friends', methods=['GET'])
 def friends():
@@ -323,13 +322,13 @@ def friends():
                     """, (user_id,))
         friend_requests = cur.fetchall()
 
-        return render_template('friends.html', friends_list=friends_list, friend_requests=friend_requests, role=session.get('role'), fname=session.get('firstname'))
+        return render_template('friends.html', friends_list=friends_list, friend_requests=friend_requests, user=session)
     except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
     
 @app.route('/acceptFriendRequest', methods=['POST'])
 def acceptFriendRequest():
@@ -361,7 +360,7 @@ def acceptFriendRequest():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
     
 @app.route('/declineFriendRequest', methods=['POST'])
 def declineFriendRequest():
@@ -384,7 +383,7 @@ def declineFriendRequest():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/removeFriend', methods=['POST'])
 def removeFriend():
@@ -415,7 +414,7 @@ def removeFriend():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/inviteToGroup', methods=['POST'])
 def inviteToGroup():
@@ -435,14 +434,14 @@ def inviteToGroup():
         if not groups:
             flash('You are not a member of any groups.', category='error')
             return redirect(url_for('friends'))
-        return render_template('inviteToGroup.html', groups=groups, friend_id=friend_id)
+        return render_template('inviteToGroup.html', user=session, groups=groups, friend_id=friend_id)
     
     except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/sendGroupInvite', methods=['POST'])
 def sendGroupInvite():
@@ -482,7 +481,7 @@ def sendGroupInvite():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/acceptGroupInvite', methods=['POST'])
 def acceptGroupInvite():
@@ -522,7 +521,7 @@ def acceptGroupInvite():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
 @app.route('/declineGroupInvite', methods=['POST'])
 def declineGroupInvite():
@@ -545,8 +544,11 @@ def declineGroupInvite():
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
-            return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
+@app.route('/profile', methods=['GET','POST'])
+def profile():
+    return render_template('profile.html', user=session)
 
 @app.route('/logout', methods=['GET'])
 def logout():

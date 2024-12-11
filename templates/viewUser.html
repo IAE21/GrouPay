@@ -10,10 +10,10 @@
         }
 
         .top {
-            flex: 0 0 auto;
+            flex: 0 0 auto; 
             background-color: #7FD8B9;
             color: white;
-            padding: 10px;
+            height: 8%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -21,7 +21,8 @@
 
         .links {
             display: flex;
-            gap: 10px;
+            margin-right: 25px;
+            height: 100%;
         }
 
         .side {
@@ -54,10 +55,27 @@
             padding: 10px 15px;
             text-align: center;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 24px;
             cursor: pointer;
             margin: 5px;
             border-radius: 8px;
+        }
+
+        a.navbutton {
+            background-color: #7FD8B9;
+            color: white;
+            text-decoration: none;
+            font-size: large;
+            text-align: center;
+            cursor: pointer;
+            height: 100%;
+            padding-top: 25px;
+            padding-left: 17.5px;
+            padding-right: 17.5px;
+        }
+    
+        .navbutton:hover {
+            background-color: #4A4F56;
         }
 
         .alert {
@@ -70,34 +88,43 @@
     <div class="container">
         <div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
 			<div class="links">
-				<div><a href="/dashboard" style="color: white;">Dashboard</a></div>
+				<a class="navbutton" href="/dashboard">Dashboard</a>
 				{% if role == 1 %}
-				<div><a href="/createGroup" style="color: white;">Create New Billing Group</a></div>
+				<a class="navbutton" href="/createGroup">Create New Billing Group</a>
 				{% endif %}
-				<div><a href = "/searchGroups" style="color: white;">Search for Groups</a></div>
-				<div><a href = "/searchUsers" style="color: white;">Search for Users</a></div>
-				<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
-				<div><a href = "/friends" style="color: white;">Friends</a></div>
-				<div><a href = "/dashboard" style="color: white;">My Profile</a></div>
-				<div><a href = "/logout" style="color: white;">Sign out</a></div>
+				<a class="navbutton" href = "/searchGroups">Search for Groups</a>
+				<a class="navbutton" href = "/searchUsers">Search for Users</a>
+				<a class="navbutton" href = "/friends">Friends</a>
+				<a class="navbutton" href = "/profile">My Profile</a>
+				<a class="navbutton" href = "/logout">Sign out</a>
 			</div>
 		</div>
         <div style="display: flex;">
             <div class="side"></div>
             <div class="middle">
                 <div class="center">
-                    <h1>{{ user[1] }} {{ user[2] }} (@{{ user[3] }})</h1>
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert {{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    <form method="POST" action="{{ url_for('sendFriendRequest') }}">
-                        <input type="hidden" name="user_id" value="{{ user[0] }}">
+                    <h1 style="font-size:50px">{{ found_user[1] }}'s Profile</h1>
+                    <div style="display:grid; width: 30%; gap: 10%; align-items: center; margin-left: 37.5%; text-align: left">
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 1">First Name:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 1">{{ found_user[1] }}</div>
+
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 2">Last Name:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 2">{{ found_user[2] }}</div>
+
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 3">Username:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 3">{{ found_user[3] }}</div>
+                    </div>
+                    <form method="POST" action="{{ url_for('sendFriendRequest') }}" style="margin-top: 50px">
+                        <input type="hidden" name="user_id" value="{{ found_user[0] }}">
                         <input type="submit" value="Send Friend Request" class="button">
                     </form>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 </div>
             </div>
             <div class="side"></div>
