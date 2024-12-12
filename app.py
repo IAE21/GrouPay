@@ -246,15 +246,34 @@ def searchUsers():
 def viewUser(user_id):
     try:
         cur = mysql.connection.cursor()
-        cur.execute("""SELECT user_id, fname, lname, username 
+        cur.execute("""SELECT user_id, fname, lname, username, company, corporate
                     FROM USERS WHERE user_id = %s""", (user_id,))
         user = cur.fetchone()
 
         if not user:
             flash('User not found.', category='error')
             return redirect(url_for('searchUsers'))
-        return render_template('viewUser.html', user=user)
         
+        if user[5] == 1:
+            cur.execute("""
+                        SELECT group_num, group_name, amount 
+                        FROM BILL_GROUPS
+                        WHERE manager_id = %s
+                        """, (user_id,))
+            groups = cur.fetchall()
+        
+        else: 
+            cur.execute("""
+                        SELECT BILL_GROUPS.group_num, BILL_GROUPS.group_name, BILL_GROUPS.amount, USERS.fname AS manager_fname, USERS.lname AS manager_lname
+                        FROM PAYS_FOR
+                        JOIN BILL_GROUPS ON PAYS_FOR.group_num = BILL_GROUPS.group_num
+                        JOIN USERS ON BILL_GROUPS.manager_id = USERS.user_id
+                        WHERE PAYS_FOR.user_id = %s""", (user_id,))
+            groups = cur.fetchall()
+            group_type = "Groups Joined"
+
+        return render_template('viewUser.html', user=user, groups=groups)
+
     except Error as e:
             print(e)
             glist = fetch_glist()
@@ -547,6 +566,9 @@ def declineGroupInvite():
             no_invs = check_empty(pending_invlist)
             return render_template('dashboard.html', role=session['role'], fname=session['firstname'], glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
 
+@app.route('/sendMessage', methods=['POST'])
+def sendMessage():
+    pass
 
 @app.route('/logout', methods=['GET'])
 def logout():

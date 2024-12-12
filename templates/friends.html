@@ -117,6 +117,13 @@
                                 <td>{{ friend[1] }} {{ friend[2] }}</td>
                                 <td>{{ friend[3] }}</td>
                                 <td>
+                                   
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('viewUser', user_id=friend[0]) }}" style="display:inline;">
+                                        <input type="hidden" name="viewUser" value="{{ friend[0] }}">
+                                        <input type="submit" value="View Profile" class="button">
+                                    </form>
                                     <form method="POST" action="{{ url_for('removeFriend') }}" style="display:inline;">
                                         <input type="hidden" name="friend_id" value="{{ friend[0] }}">
                                         <input type="submit" value="Remove Friend" class="button">
