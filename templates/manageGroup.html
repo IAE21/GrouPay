@@ -15,129 +15,150 @@
     	flex: 0 0 auto; 
     	background-color: #7FD8B9;
     	color: white;
-		height: 8%;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
+      height: 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      }
+
+    .links {
+      display: flex;
+      margin-right: 25px;
+      height: 100%;
     }
 
-	.links {
-		display: flex;
-		margin-right: 25px;
-		height: 100%;
-	}
-    
     .side {
-		flex: 0 0 100px;
-		background-color: grey;
-		padding: 10px;
-		min-height: 100vh;
-	}
-  
-	.middle {
-		flex: 1;
-		background-color: white;
-		padding: 10px;
-		min-height: 100vh;
-	}
-    
-    body {
-    	margin: 0;
-    	font-family: arial;
+      flex: 0 0 100px;
+      background-color: grey;
+      padding: 10px;
+      min-height: 100vh;
     }
 
-	.center{
-		height: 200px;
-		width: 100%;
-		top: 30%;
-		left: 35%;
-		text-align: center;
-	}
+    .middle {
+      flex: 1;
+      background-color: white;
+      padding: 10px;
+      min-height: 100vh;
+    }
 
-	.centerform{
-		left: 45%;
-		text-align: center;
-	}
-	
-	.centertable{
-		margin-top: 31px;
-		text-align: center;
-	}
+    body {
+      margin: 0;
+      font-family: arial;
+    }
 
-	table {
-		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-		width: 100%;
-		border-collapse: separate;
-		border-spacing: 0;
-		margin-top: 20px;
-		border-radius: 16px;
-	}
+    .center{
+      height: 200px;
+      width: 100%;
+      top: 30%;
+      left: 35%;
+      text-align: center;
+    }
 
-	th {
-		background-color: #7FD8B9;
-		color: white;
-		padding: 10px;
-		text-align: left;
-		border-bottom: 1px solid grey;
-		border-collapse: separate;
-		font-size: x-large;
-	}
+    .centerform{
+      left: 45%;
+      text-align: center;
+    }
 
-	th:first-child {
-		border-radius: 16px 0 0 0;
-	}
+    .centertable{
+      margin-top: 31px;
+      text-align: center;
+    }
 
-	th:last-child {
-		border-radius: 0 16px 0 0;
-	}
+    table {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 20px;
+      border-radius: 16px;
+    }
 
-	th, td {
-		padding: 10px;
-		text-align: left;
-		border-bottom: 1px solid grey;
-	}
-	
-	tr:last-child td {
-		border-bottom: 0;
-	}
+    th {
+      background-color: #7FD8B9;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid grey;
+      border-collapse: separate;
+      font-size: x-large;
+    }
 
-	results {
-		margin-top: 350px;
-	}
+    tr {
+      font-size: large;
+    }
+
+    th:first-child {
+      border-radius: 16px 0 0 0;
+    }
+
+    th:last-child {
+      border-radius: 0 16px 0 0;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid grey;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    results {
+      margin-top: 350px;
+    }
 
     .button {
-		background-color: #4A4F56;
-		border: none;
-		color: white;
-		padding: 10px 15px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		font-size: 16px;
-		cursor: pointer;
-		border-radius: 8px;
-	}
+      background-color: #4A4F56;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
 
-	a.navbutton {
-		background-color: #7FD8B9;
-		color: white;
-		text-decoration: none;
-		font-size: large;
-		text-align: center;
-		cursor: pointer;
-		height: 100%;
-		padding-top: 25px;
-		padding-left: 17.5px;
-		padding-right: 17.5px;
-	}
+    button {
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+    }
 
-	.navbutton:hover {
-		background-color: #4A4F56;
-	}
+    a.navbutton {
+      background-color: #7FD8B9;
+      color: white;
+      text-decoration: none;
+      font-size: large;
+      text-align: center;
+      cursor: pointer;
+      height: 100%;
+      padding-top: 25px;
+      padding-left: 17.5px;
+      padding-right: 17.5px;
+    }
 
+    .navbutton:hover {
+      background-color: #4A4F56;
+    }
   </style>
 </head>
-
+<script type="text/javascript">
+    function showEditForm(uid) {
+		document.getElementById(uid + 'display').style.display = 'none';
+        document.getElementById(uid + 'editbtn').style.display = 'none';
+		document.getElementById(uid + 'editform').style.display = 'flex';
+    }
+	
+	function editAmount() {
+		document.getElementById('amt').style.display = 'none';
+        document.getElementById('amtbtn').style.display = 'none';
+		document.getElementById('amtform').style.display = 'inline-block';
+	}
+</script>
 <body>
   <div class="container">
 	<div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
@@ -158,34 +179,85 @@
       	<div class="middle">
 			<div class = "center">
 				<div class = "centerform">
-					<h1>Group Name: {{ gname }}</h1>
-                    <h1>Amount: ${{ amount }}</h1>
-                    <h2>Group Manager: {{ mgr }}            
-                        {% if user['role'] == 0 %}
-                        <button class="button">Contact</button>
-                        {% endif %}
-                    </h2>
+					<h1 style="font-size: 50px">Group Name: {{ billgroup[0][2] }}</h1>
+          <h1>Amount: <div id="amt" style="display: inline-block">${{ billgroup[0][3] }}</div>
+          <form method="POST" action="{{ url_for('editAmount') }}" id="amtform" style="display: none">
+            <input type="hidden" name="gnum" value={{gnum}}>
+            <input type="number" step="any" name="amt" value={{billgroup[0][3]}} style="display: inline-block; font-size: 30px; width: 125px">
+            <input type="image" src="{{url_for('static', filename='images/confirm.png')}}" style="max-width: 27px; max-height: 27px; margin-top: 3px; margin-left: 5px">
+          </form>
+          {% if user['userID'] == billgroup[0][4] %}
+            <button id="amtbtn" onclick="javascript:editAmount();" style="display: inline-block">
+              <img src="{{url_for('static', filename='images/edit.png')}}" alt="Edit" style="max-height: 25px; max-width: 25px;">
+            </button>
+          {% endif %}
+					</h1>
+          <h2 style="font-size: 30px">Group Manager: {{ billgroup[0][0] }} {{ billgroup[0][1] }}            
+          {% if user['role'] == 0 %}
+            <form method="GET" action="{{ url_for('conversation', user_id=billgroup[0][4]) }}" style="display: inline-block; margin-left: 10px">
+              <input type="submit" value="Contact" class="button">
+            </form>
+          {% endif %}
+          </h2>
 				</div>
 				<div class="centertable">
-					<h3>Group Members:</h3>
+					<h3 style="font-size: 30px">Group Members:</h3>
 					<table id="resultsTable">
 						<thead>
-						<tr>
-							<th>Name</th>
-                            <th>Percentage</th>
-                            <th>Username</th>
-						</tr>
+							<tr>
+								<th>Name</th>
+								<th>Percentage</th>
+								<th>Username</th>
+								<th></th>
+							</tr>
 						</thead>
 						<tbody id="memsList">
 						{% for member in mlist %}
 						<tr>
-                            <td>{{ member[0] }} {{ member[1] }}</td>
-							<td>{{ member[3] }}</td>
+              <td>{{ member[0] }} {{ member[1] }}</td>
+							<td style="display: flex; height: 40px"><div id={{member[4]}}display style="display: inline-block; margin-top: 4%;">{{ member[3] }}%</div>
+								<form method="POST" action="{{ url_for('editPercentage') }}" id={{member[4]}}editform style="display: none">
+									<input type="hidden" name="gnum" value={{gnum}}>
+									<input type="hidden" name="editID" value={{member[4]}}>
+									<input type="number" step="any" name="perc" id="perc" value={{member[3]}} style="display: inline-block; width: 60px; font-size: large">
+									<input type="image" src="{{url_for('static', filename='images/confirm_small.png')}}" style="max-width: 18px; max-height: 16px; margin-top: 11px; margin-left: 5px">
+								</form> 
+								{% if user['userID'] == billgroup[0][4] %}
+									<button id={{member[4]}}editbtn onclick="javascript:showEditForm( {{ member[4] }} );" style="display: inline-block">
+										<img src="{{url_for('static', filename='images/edit_small.png')}}" alt="Edit">
+									</button>
+								{% endif %}
+							</td>
 							<td>{{ member[2] }}</td>
+							<td>
+								{% if user['userID'] != member[4] %}
+                  <form method="POST" action="{{ url_for('sendFriendRequest') }}" style="display: inline; margin-left: 35%">
+                    <input type="hidden" name="user_id" value="{{ member[4] }}">
+                  <input type="submit" value="Send Friend Request" class="button" >
+                  </form>
+                  <form method="GET" action="{{ url_for('conversation', user_id=member[4]) }}" style="display: inline">
+                    <input type="submit" value="Message" class="button">
+                  </form>
+								{% endif %}
+								{% if user['userID'] == billgroup[0][4] %}
+									<form method="POST" action="{{ url_for('removeGroupUser') }}" style="display: inline">
+										<input type="hidden" name="gnum" value={{gnum}}>
+										<input type="hidden" name="user_id" value={{member[4]}}>
+										<input type="submit" value="Remove User" class="button">
+									</form>
+								{% endif %}
+							</td>
 						</tr>
 						{% endfor %}
 						</tbody>
 					</table>
+					{% with messages = get_flashed_messages(with_categories=true) %}
+						{% if messages %}
+							{% for category, message in messages %}
+								<div class="alert {{ category }}">{{ message }}</div>
+							{% endfor %}
+						{% endif %}
+					{% endwith %}
 				</div>
 			</div>
 		</div>

@@ -2,7 +2,6 @@ from flask import Flask, render_template, session, request, redirect, url_for, f
 from flask_login import LoginManager
 from flask_mysqldb import MySQL
 from mysql.connector import Error
-from functools import wraps
 import setup
 
 app = Flask(__name__)
@@ -65,6 +64,46 @@ def check_empty(pending_invlist):
         no_invs = "true"
     return no_invs
     
+def canMessage(sender_id, receiver_id):
+    cur = mysql.connection.cursor()
+    if sender_id == receiver_id:
+        return False
+    
+    cur.execute("""
+                SELECT 1 FROM FRIENDS
+                WHERE (user_id = %s AND friend_id = %s)
+                OR (user_id = %s AND friend_id = %s)
+                """, (sender_id, receiver_id, receiver_id, sender_id))
+    if cur.fetchone():
+        return True
+    
+    cur.execute("""
+                SELECT 1
+                FROM PAYS_FOR USER1
+                JOIN PAYS_FOR USER2 ON USER1.group_num = USER2.group_num
+                WHERE USER1.user_id = %s AND USER2.user_id = %s
+                """, (sender_id, receiver_id))
+    if cur.fetchone():
+        return True
+    
+    cur.execute("""SELECT 1 
+                FROM PAYS_FOR 
+                JOIN BILL_GROUPS ON PAYS_FOR.group_num = BILL_GROUPS.group_num 
+                WHERE PAYS_FOR.user_id = %s AND BILL_GROUPS.manager_id = %s
+                """, (sender_id, receiver_id))
+    if cur.fetchone():
+        return True
+    
+    cur.execute("""SELECT 1 
+            FROM BILL_GROUPS 
+            JOIN PAYS_FOR ON BILL_GROUPS.group_num = PAYS_FOR.group_num 
+            WHERE BILL_GROUPS.manager_id = %s AND PAYS_FOR.user_id = %s 
+            """, (sender_id, receiver_id))
+    if cur.fetchone():
+        return True
+
+    return False
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -130,6 +169,7 @@ def dashboard():
     pending_invlist = fetch_invlist()
     no_invs = check_empty(pending_invlist)
     return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+
 @app.route('/createGroup', methods=['GET', 'POST'])
 def createGroup():
     if request.method == 'POST':
@@ -149,7 +189,6 @@ def createGroup():
         except Error as e:
             print(e)
             return render_template('createGroup.html', user=session )
-    
     return render_template('createGroup.html', user=session )
 
 @app.route('/searchGroups', methods=['GET', 'POST'])
@@ -203,21 +242,80 @@ def manageGroup():
 
         try:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+            cur.execute("SELECT fname, lname, group_name, amount, USERS.user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
             billgroup = cur.fetchall()
-            mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
-            gname = billgroup[0][2]
-            amount = billgroup[0][3]
-            cur.execute("SELECT fname, lname, username, percent FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+            cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
             mlist = cur.fetchall()
-            return render_template('manageGroup.html', user=session, gname=gname, mgr=mgr_name, amount=amount, mlist=mlist)
+            return render_template('manageGroup.html', user=session, billgroup=billgroup, gnum=gnum, mlist=mlist)
         except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
             return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
-        
+
+@app.route('/editAmount', methods=['POST'])
+def editAmount():
+    gnum = request.form['gnum']
+    amt = request.form['amt']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE BILL_GROUPS SET amount = %s WHERE group_num = %s", (amt, gnum))
+        mysql.connection.commit()
+        cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+        billgroup = cur.fetchall()
+        cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+        mlist = cur.fetchall()
+        return render_template('manageGroup.html', user=session, billgroup=billgroup, gnum=gnum, mlist=mlist)
+    except Error as e:
+        print(e)
+        glist = fetch_glist()
+        pending_invlist = fetch_invlist()
+        no_invs = check_empty(pending_invlist)
+        return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+    
+@app.route('/editPercentage', methods=['POST'])
+def editPercentage():
+    gnum = request.form['gnum']
+    editID = request.form['editID']
+    perc = request.form['perc']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+        billgroup = cur.fetchall()
+        cur.execute("UPDATE PAYS_FOR SET percent = %s WHERE user_id = %s AND group_num = %s", (perc, editID, gnum))
+        mysql.connection.commit()
+        cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+        mlist = cur.fetchall()
+        return render_template('manageGroup.html', user=session, billgroup=billgroup, gnum=gnum, mlist=mlist)
+    except Error as e:
+        print(e)
+        glist = fetch_glist()
+        pending_invlist = fetch_invlist()
+        no_invs = check_empty(pending_invlist)
+        return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+
+@app.route('/removeGroupUser', methods=['POST'])
+def removeGroupUser():
+    user_id = request.form['user_id']
+    gnum = request.form['gnum']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM PAYS_FOR WHERE user_id = %s AND group_num = %s", (user_id, gnum))
+        mysql.connection.commit()
+        cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+        billgroup = cur.fetchall()
+        cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+        mlist = cur.fetchall()
+        flash('User removed.', category='success')
+        return render_template('manageGroup.html', user=session, billgroup=billgroup, gnum=gnum, mlist=mlist)
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+    
 @app.route('/searchUsers', methods=['GET', 'POST'])
 def searchUsers():
     if request.method == 'POST':
@@ -270,8 +368,9 @@ def viewUser(user_id):
                         WHERE PAYS_FOR.user_id = %s""", (user_id,))
             groups = cur.fetchall()
             group_type = "Groups Joined"
-
-        return render_template('viewUser.html', found_user=user, groups=groups)
+        sender_id = session['userID']
+        allow_message = canMessage(sender_id, user_id)
+        return render_template('viewUser.html', cur_user=session, found_user=user, groups=groups, allow_message=allow_message)
 
     except Error as e:
             print(e)
@@ -569,6 +668,39 @@ def declineGroupInvite():
 def profile():
     return render_template('profile.html', user=session)
     
+@app.route('/conversation/<int:user_id>', methods=['GET', 'POST'])
+def conversation(user_id):
+    current_user_id = session['userID']
+
+    if not canMessage(current_user_id, user_id):
+        flash('You cannot message this user as you are not friends or do not share a group.', 'error')
+        return redirect(url_for('viewUser', user_id=user_id))
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT fname, lname FROM USERS WHERE user_id = %s", (user_id,))
+    other_user = cur.fetchone()
+    other_user_name = other_user[0] + ' ' + other_user[1]
+
+    if request.method == 'POST':
+        content = request.form.get('content')
+        if content:
+            cur.execute("""
+                INSERT INTO MESSAGES (sender_id, receiver_id, content)
+                VALUES (%s, %s, %s)
+                """, (current_user_id, user_id, content))
+            mysql.connection.commit()
+
+    cur.execute("""
+                SELECT sender_id, receiver_id, content, timestaamp
+                FROM MESSAGES
+                WHERE (sender_id = %s AND receiver_id = %s)
+                OR (sender_id = %s AND receiver_id = %s)
+                ORDER BY timestaamp ASC
+                """, (current_user_id, user_id, user_id, current_user_id))
+    messages = cur.fetchall()
+
+    return render_template('conversation.html', messages=messages, other_user_id=user_id, other_user_name=other_user_name)
 
 @app.route('/logout', methods=['GET'])
 def logout():

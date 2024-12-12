@@ -5,130 +5,134 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Groups</title>
   <style>
-	.container {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-	}
+    .container {
+    	display: flex;
+    	flex-direction: column;
+    	height: 100vh;
+    }
+ 
+    .top {
+    	flex: 0 0 auto; 
+    	background-color: #7FD8B9;
+    	color: white;
+      height: 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-	.top {
-		flex: 0 0 auto; 
-		background-color: #7FD8B9;
-		color: white;
-		height: 8%;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+    .links {
+      display: flex;
+      margin-right: 25px;
+      height: 100%;
+    }
 
-	.links {
-		display: flex;
-		margin-right: 25px;
-		height: 100%;
-	}
+    .side {
+      flex: 0 0 100px;
+      background-color: grey;
+      padding: 10px;
+      min-height: 100vh;
+    }
 
-	.side {
-		flex: 0 0 100px;
-		background-color: grey;
-		padding: 10px;
-		min-height: 100vh;
-	}
+    .middle {
+      flex: 1;
+      background-color: white;
+      padding: 10px;
+      min-height: 100vh;
+    }
 
-	.middle {
-		flex: 1;
-		background-color: white;
-		padding: 10px;
-		min-height: 100vh;
-	}
+    body {
+      margin: 0;
+      font-family: arial;
+    }
 
-	body {
-		margin: 0;
-		font-family: arial;
-	}
+    .center {
+      text-align: center;
+    }
 
-	.center {
-		text-align: center;
-	}
+    .centerform {
+      margin-top: 20px;
+    }
 
-	.centerform {
-		margin-top: 20px;
-	}
+    .centertable {
+      margin-top: 20px;
+      text-align: center;
+    }
 
-	.centertable {
-		margin-top: 20px;
-		text-align: center;
-	}
+    table {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 20px;
+      border-radius: 16px;
+    }
 
-	table {
-		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-		width: 100%;
-		border-collapse: separate;
-		border-spacing: 0;
-		margin-top: 20px;
-		border-radius: 16px;
-	}
+    th {
+      background-color: #7FD8B9;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid grey;
+      border-collapse: separate;
+      font-size: x-large;
+    }
 
-	th {
-		background-color: #7FD8B9;
-		color: white;
-		padding: 10px;
-		text-align: left;
-		border-bottom: 1px solid grey;
-		border-collapse: separate;
-		font-size: x-large;
-	}
+    th:first-child {
+      border-radius: 16px 0 0 0;
+    }
 
-	th:first-child {
-		border-radius: 16px 0 0 0;
-	}
+    th:last-child {
+      border-radius: 0 16px 0 0;
+    }
 
-	th:last-child {
-		border-radius: 0 16px 0 0;
-	}
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid grey;
+    }
 
-	th, td {
-		padding: 10px;
-		text-align: left;
-		border-bottom: 1px solid grey;
-	}
-	
-	tr:last-child td {
-		border-bottom: 0;
-	}
+    tr:last-child td {
+      border-bottom: 0;
+    }
 
-	.button {
-		background-color: #4A4F56;
-		border: none;
-		color: white;
-		padding: 10px 15px;
-		text-align: center;
-		text-decoration: none;
-		font-size: 16px;
-		cursor: pointer;
-		border-radius: 8px;
-	}
+    tr:last-child td {
+      border-bottom: 0;
+    }
 
-	a.navbutton {
-		background-color: #7FD8B9;
-		color: white;
-		text-decoration: none;
-		font-size: large;
-		text-align: center;
-		cursor: pointer;
-		height: 100%;
-		padding-top: 25px;
-		padding-left: 17.5px;
-		padding-right: 17.5px;
-	}
+    .button {
+      background-color: #4A4F56;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
 
-	.navbutton:hover {
-		background-color: #4A4F56;
-	}
+    a.navbutton {
+      background-color: #7FD8B9;
+      color: white;
+      text-decoration: none;
+      font-size: large;
+      text-align: center;
+      cursor: pointer;
+      height: 100%;
+      padding-top: 25px;
+      padding-left: 17.5px;
+      padding-right: 17.5px;
+    }
 
-	.alert {
-		margin-top: 20px;
-		color: red;
-	}
+    .navbutton:hover {
+      background-color: #4A4F56;
+    }
+
+    .alert {
+      margin-top: 20px;
+      color: red;
+    }
 </style>
 </head>
 <body>

@@ -73,6 +73,10 @@
 		border-radius: 16px;
 	}
 
+	tr {
+      font-size: large;
+    }
+
 	th {
 		background-color: #7FD8B9;
 		color: white;
@@ -196,13 +200,14 @@
 								<th>Amount</th>
 								<th>Manager</th>
 								<th>Invited By</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							{% for invite, mgr in pending_invites %}
 							<tr>
 								<td>{{ invite[1] }}</td>
-								<td>{{ invite[2] }}</td>
+								<td>${{ invite[2] }}</td>
 								<td>{{ mgr[0] }} {{ mgr[1] }}</td>
 								<td>{{ invite[3] }} {{ invite[4] }}</td>
 								<td style="text-align:center;">

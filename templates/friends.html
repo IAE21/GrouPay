@@ -147,7 +147,7 @@
         <div style="display: flex;">
             <div class="side"></div>
             <div class="middle">
-                <div class="center" >
+                <div class="center">
                     <h1 style="font-size:50px">Your Friends</h1>
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
@@ -175,6 +175,10 @@
                                     <form action="{{ url_for('viewUser', user_id=friend[0]) }}" style="display:inline;">
                                         <input type="hidden" name="viewUser" value="{{ friend[0] }}">
                                         <input type="submit" value="View Profile" class="button">
+                                    </form>
+                                    <form action="{{ url_for('conversation', user_id=friend[0]) }}" style="display:inline;">
+                                        <input type="hidden" name="viewUser" value="{{ friend[0] }}">
+                                        <input type="submit" value="Message" class="button">
                                     </form>
                                     <form method="POST" action="{{ url_for('removeFriend') }}" style="display:inline;">
                                         <input type="hidden" name="friend_id" value="{{ friend[0] }}">
@@ -213,6 +217,7 @@
                                         <input type="hidden" name="viewUser" value="{{ request[0] }}">
                                         <input type="submit" value="View Profile" class="button">
                                     </form>
+                                    
                                     <form method="POST" action="{{ url_for('acceptFriendRequest') }}" style="display:inline;">
                                         <input type="hidden" name="requester_id" value="{{ request[0] }}">
                                         <input type="submit" value="Accept" class="button">

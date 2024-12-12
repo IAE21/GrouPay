@@ -67,7 +67,15 @@ try:
                                     FOREIGN KEY (sender_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
                                     FOREIGN KEY (receiver_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE
                                     )"""
-        
+        db_create_message_table = """CREATE TABLE IF NOT EXISTS MESSAGES(
+                                    message_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                    sender_id INT NOT NULL,
+                                    receiver_id INT NOT NULL,
+                                    content TEXT NOT NULL,
+                                    timestaamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FOREIGN KEY (sender_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+                                    FOREIGN KEY (receiver_id) REFERENCES USERS(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+                                    )"""
         db_admin = """CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123';"""
         db_grant = "GRANT INSERT, UPDATE, DELETE, ALTER, SELECT ON *.* TO 'admin'@'localhost';"
         with conn.cursor() as cur:
@@ -79,6 +87,7 @@ try:
             cur.execute(db_create_friend_requests)
             cur.execute(db_create_friends)
             cur.execute(db_create_group_invites)
+            cur.execute(db_create_message_table)
         conn.commit()
 except Error as e:
     print(e)

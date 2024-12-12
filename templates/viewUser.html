@@ -101,7 +101,7 @@
             padding: 10px 15px;
             text-align: center;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 24px;
             cursor: pointer;
             border-radius: 8px;
         }
@@ -134,7 +134,7 @@
         <div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
 			<div class="links">
 				<a class="navbutton" href="/dashboard">Dashboard</a>
-				{% if role == 1 %}
+				{% if cur_user['role'] == 1 %}
 				<a class="navbutton" href="/createGroup">Create New Billing Group</a>
 				{% endif %}
 				<a class="navbutton" href = "/searchGroups">Search for Groups</a>
@@ -150,10 +150,19 @@
             <div class="middle">
                 <div class="center">
                     <h1 style="font-size:50px">{{ found_user[1] }}'s Profile</h1>
-                    <form method="POST" action="{{ url_for('sendFriendRequest') }}" style="margin-top: 50px">
+                    <form method="POST" action="{{ url_for('sendFriendRequest') }}" style="margin-top: 30px">
                         <input type="hidden" name="user_id" value="{{ found_user[0] }}">
                         <input type="submit" value="Send Friend Request" class="button" >
                     </form>
+                    {% if allow_message %}
+                        <form method="GET" action="{{ url_for('conversation', user_id=found_user[0]) }} " style="margin-top: 30px">
+                            <input type="submit" value="Message" class="button">
+                        </form>
+                    {% else %}
+                        <form method="GET" action="{{ url_for('conversation', user_id=found_user[0]) }}" style="margin-top: 30px">
+                            <input type="submit" value="Message" class="button">
+                        </form>
+                    {% endif %}
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -161,7 +170,7 @@
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
-                    <div style="display:grid; width: 30%; gap: 10%; align-items: center; margin-left: 37.5%; text-align: left">
+                    <div style="display:grid; width: 32.5%; gap: 10%; align-items: center; margin-left: 36%; text-align: left">
                         <h2 style="font-size: 30px; grid-column: 1; grid-row: 1">Full Name:</h2>
                         <div style="font-size: 25px; grid-column: 2; grid-row: 1">{{ found_user[1] }} {{ found_user[2] }}</div>
 
@@ -174,11 +183,11 @@
                         <h2 style="font-size: 30px; grid-column: 1; grid-row: 4">Account Type:</h2>
                         <div style="font-size: 25px; grid-column: 2; grid-row: 4">{% if found_user[5] == 1 %}Corporate{% else %}Private{% endif %}</div>
 
-                        <div class="groups-info">
+                        <div class="groups-info" style=" grid-column: span 2; grid-row: 5; text-align: center;">
                             {% if found_user[5] == 1 %}
-                            <h2>Groups managed by {{ found_user[1] }} {{ found_user[2] }}:</h2>
+                            <h2 style="font-size: 30px">Groups managed by {{ found_user[1] }} {{ found_user[2] }}:</h2>
                             {% else %}
-                            <h2>Groups {{ found_user[1] }} {{ found_user[2] }} is in:</h2>
+                            <h2>{{ found_user[1] }} {{ found_user[2] }}'s Groups:</h2>
                             {% endif %}
                             {% if groups and groups|length > 0 %}
                             <table>
@@ -195,7 +204,7 @@
                                     {% for g in groups %}
                                     <tr>
                                         <td>{{ g[1] }}</td>
-                                        <td>{{ g[2] }}</td>
+                                        <td>${{ g[2] }}</td>
                                         {% if found_user[5] == 0 %}
                                         <td>{{ g[3] }} {{ g[4] }}</td>
                                         {% endif %}
@@ -212,7 +221,6 @@
                             {% endif %}
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="side"></div>
