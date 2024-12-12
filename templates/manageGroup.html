@@ -105,6 +105,7 @@
 		margin-top: 350px;
 	}
 
+	
     .button {
 		background-color: #4A4F56;
 		border: none;
@@ -158,11 +159,13 @@
       	<div class="middle">
 			<div class = "center">
 				<div class = "centerform">
-					<h1>Group Name: {{ gname }}</h1>
-                    <h1>Amount: ${{ amount }}</h1>
-                    <h2>Group Manager: {{ mgr }}            
+					<h1>Group Name: {{ billgroup[0][3] }}</h1>
+                    <h1>Amount: ${{ billgroup[0][4] }}</h1>
+                    <h2>Group Manager: {{ billgroup[0][1] }} {{ billgroup[0][2]}}            
                         {% if user['role'] == 0 %}
-                        <button class="button">Contact</button>
+                        <form method="GET" action="{{ url_for('conversation', user_id=billgroup[0][0]) }} ">
+							<input type="submit" value="Contact" class="button">
+						</form>
                         {% endif %}
                     </h2>
 				</div>
@@ -174,14 +177,24 @@
 							<th>Name</th>
                             <th>Percentage</th>
                             <th>Username</th>
+							<th></th>
 						</tr>
 						</thead>
 						<tbody id="memsList">
 						{% for member in mlist %}
 						<tr>
-                            <td>{{ member[0] }} {{ member[1] }}</td>
+                            <td>{{ member[1] }} {{ member[2] }}</td>
+							<td>{{ member[4] }}</td>
 							<td>{{ member[3] }}</td>
-							<td>{{ member[2] }}</td>
+							<td>
+								<form method="POST" action="{{ url_for('sendFriendRequest') }}">
+									<input type="hidden" name="user_id" value="{{ member[0] }}">
+                        			<input type="submit" value="Send Friend Request" class="button" >
+								</form>
+								<form method="GET" action="{{ url_for('conversation', user_id=member[0]) }} ">
+									<input type="submit" value="Message" class="button">
+								</form>
+							</td>
 						</tr>
 						{% endfor %}
 						</tbody>

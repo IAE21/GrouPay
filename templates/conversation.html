@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conversation</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .top {
+            flex: 0 0 auto; 
+            background-color: #7FD8B9;
+            color: white;
+            height: 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .links {
+            display: flex;
+            margin-right: 25px;
+            height: 100%;
+        }
+
+        a.navbutton {
+            background-color: #7FD8B9;
+            color: white;
+            text-decoration: none;
+            font-size: large;
+            text-align: center;
+            cursor: pointer;
+            height: 100%;
+            padding-top: 25px;
+            padding-left: 17.5px;
+            padding-right: 17.5px;
+        }
+
+        .navbutton:hover {
+            background-color: #4A4F56;
+        }
+
+        .side {
+            flex: 0 0 100px;
+            background-color: grey;
+            padding: 10px;
+            min-height: 100vh;
+        }
+
+        .middle {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body {
+            margin: 0;
+            font-family: arial;
+        }
+
+        .button {
+            background-color: #4A4F56;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .alert {
+            margin-top: 20px;
+            color: red;
+        }
+
+        .conversation-container {
+            width: 50%;
+            min-width: 300px;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            background: #f9f9f9;
+        }
+
+        .conversation-header {
+            font-size: 30px;
+            margin: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            background: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.sent {
+            background: #7FD8B9;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.received {
+            background: #e0e0e0;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .message-time {
+            font-size: small;
+            display: block;
+            margin-top: 5px;
+            color: #555;
+        }
+
+        .message-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-form textarea {
+            font-family: arial;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: none;
+            padding: 10px;
+            font-size: 16px;
+            height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top">
+            <img src="{{ url_for('static', filename='images/logo_small.png') }}" alt="GrouPay">
+            <div class="links">
+                <a class="navbutton" href="/dashboard">Dashboard</a>
+                {% if session['role'] == 1 %}
+                <a class="navbutton" href="/createGroup">Create New Billing Group</a>
+                {% endif %}
+                <a class="navbutton" href="/searchGroups">Search for Groups</a>
+                <a class="navbutton" href="/searchUsers">Search for Users</a>
+                <a class="navbutton" href="/friends">Friends</a>
+                <a class="navbutton" href="/profile">My Profile</a>
+                <a class="navbutton" href="/logout">Sign out</a>
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div class="side"></div>
+            <div class="middle">
+
+                <div class="conversation-container">
+                    <h1 class="conversation-header">Conversation with {{ other_user_name }}</h1>
+                    <div class="messages-container" id="messagesContainer">
+                        {% for m in messages %}
+                            {% if m[0] == session['userID'] %}
+                                <div class="message sent">
+                                    <strong>You:</strong> {{ m[2] }}
+                                    <span class="message-time">{{ m[3] }}</span>
+                                </div>
+                            {% else %}
+                                <div class="message received">
+                                    <strong>{{ other_user_name.split(' ')[0] }}:</strong> {{ m[2] }}
+                                    <span class="message-time">{{ m[3] }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <form class="message-form" method="POST" id="message">
+                        <textarea name="content" id="input" placeholder="Type your message here..."></textarea>
+                        <input type="submit" value="Send" class="button">
+                    </form>
+                </div>
+            </div>
+            <div class="side"></div>
+        </div>
+    </div>
+    <script>
+        var messagesContainer = document.getElementById('messagesContainer');
+        if(messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        document.getElementById('input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            if (!event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('message').submit(); 
+            }
+        }
+    });
+    </script>
+</body>
+</html>

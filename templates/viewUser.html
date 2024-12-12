@@ -154,6 +154,15 @@
                         <input type="hidden" name="user_id" value="{{ found_user[0] }}">
                         <input type="submit" value="Send Friend Request" class="button" >
                     </form>
+                    {% if allow_message %}
+                        <form method="GET" action="{{ url_for('conversation', user_id=found_user[0]) }} " style="margin-top: 50px">
+                            <input type="submit" value="Message" class="button">
+                        </form>
+                    {% else %}
+                        <form method="GET" action="{{ url_for('conversation', user_id=found_user[0]) }}" style="margin-top: 50px">
+                            <input type="submit" value="Message" class="button">
+                        </form>
+                    {% endif %}
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -212,7 +221,6 @@
                             {% endif %}
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="side"></div>
