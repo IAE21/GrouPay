@@ -331,7 +331,6 @@ def viewUser(user_id):
         if not user:
             flash('User not found.', category='error')
             return redirect(url_for('searchUsers'))
-        return render_template('viewUser.html', cur_user=session, found_user=user)
         
         if user[5] == 1:
             cur.execute("""
@@ -352,7 +351,7 @@ def viewUser(user_id):
             group_type = "Groups Joined"
         sender_id = session['userID']
         allow_message = canMessage(sender_id, user_id)
-        return render_template('viewUser.html', found_user=user, groups=groups, allow_message=allow_message)
+        return render_template('viewUser.html', cur_user=session, found_user=user, groups=groups, allow_message=allow_message)
 
     except Error as e:
             print(e)
