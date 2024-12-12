@@ -135,7 +135,7 @@
         <div class="top">
             <img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
             <div class="links">
-                <a class="navbutton" href="/dashboard">Dashboard</a>
+				<a class="navbutton" href="/dashboard">Dashboard</a>
 				{% if user['role'] == 1 %}
 				<a class="navbutton" href="/createGroup">Create New Billing Group</a>
 				{% endif %}
