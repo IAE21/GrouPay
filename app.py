@@ -203,21 +203,96 @@ def manageGroup():
 
         try:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT fname, lname, group_name, amount FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+            cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
             billgroup = cur.fetchall()
             mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
             gname = billgroup[0][2]
             amount = billgroup[0][3]
-            cur.execute("SELECT fname, lname, username, percent FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+            mgr_id = billgroup[0][4]
+            cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
             mlist = cur.fetchall()
-            return render_template('manageGroup.html', user=session, gname=gname, mgr=mgr_name, amount=amount, mlist=mlist)
+            return render_template('manageGroup.html', user=session, gname=gname, gnum=gnum, mgr=mgr_name, mgr_id=mgr_id, amount=amount, mlist=mlist)
         except Error as e:
             print(e)
             glist = fetch_glist()
             pending_invlist = fetch_invlist()
             no_invs = check_empty(pending_invlist)
             return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
-        
+
+@app.route('/editAmount', methods=['POST'])
+def editAmount():
+    gnum = request.form['gnum']
+    amt = request.form['amt']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE BILL_GROUPS SET amount = %s WHERE group_num = %s", (amt, gnum))
+        mysql.connection.commit()
+        cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+        billgroup = cur.fetchall()
+        mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
+        gname = billgroup[0][2]
+        amount = billgroup[0][3]
+        mgr_id = billgroup[0][4]
+        cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+        mlist = cur.fetchall()
+        return render_template('manageGroup.html', user=session, gname=gname, gnum=gnum, mgr=mgr_name, mgr_id=mgr_id, amount=amount, mlist=mlist)
+    except Error as e:
+        print(e)
+        glist = fetch_glist()
+        pending_invlist = fetch_invlist()
+        no_invs = check_empty(pending_invlist)
+        return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+    
+@app.route('/editPercentage', methods=['POST'])
+def editPercentage():
+    gnum = request.form['gnum']
+    editID = request.form['editID']
+    perc = request.form['perc']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+        billgroup = cur.fetchall()
+        mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
+        gname = billgroup[0][2]
+        amount = billgroup[0][3]
+        mgr_id = billgroup[0][4]
+        cur.execute("UPDATE PAYS_FOR SET percent = %s WHERE user_id = %s AND group_num = %s", (perc, editID, gnum))
+        mysql.connection.commit()
+        cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+        mlist = cur.fetchall()
+        return render_template('manageGroup.html', user=session, gname=gname, gnum=gnum, mgr=mgr_name, mgr_id=mgr_id, amount=amount, mlist=mlist)
+    except Error as e:
+        print(e)
+        glist = fetch_glist()
+        pending_invlist = fetch_invlist()
+        no_invs = check_empty(pending_invlist)
+        return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+
+@app.route('/removeGroupUser', methods=['POST'])
+def removeGroupUser():
+    user_id = request.form['user_id']
+    gnum = request.form['gnum']
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM PAYS_FOR WHERE user_id = %s AND group_num = %s", (user_id, gnum))
+        mysql.connection.commit()
+        cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+        billgroup = cur.fetchall()
+        mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
+        gname = billgroup[0][2]
+        amount = billgroup[0][3]
+        mgr_id = billgroup[0][4]
+        cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
+        mlist = cur.fetchall()
+        flash('User removed.', category='success')
+        return render_template('manageGroup.html', user=session, gname=gname, gnum=gnum, mgr=mgr_name, mgr_id=mgr_id, amount=amount, mlist=mlist)
+    except Error as e:
+            print(e)
+            glist = fetch_glist()
+            pending_invlist = fetch_invlist()
+            no_invs = check_empty(pending_invlist)
+            return render_template('dashboard.html', user=session, glist=glist, pending_invites=zip(pending_invlist[0], pending_invlist[1]), no_invs=no_invs)
+    
 @app.route('/searchUsers', methods=['GET', 'POST'])
 def searchUsers():
     if request.method == 'POST':
@@ -252,7 +327,7 @@ def viewUser(user_id):
         if not user:
             flash('User not found.', category='error')
             return redirect(url_for('searchUsers'))
-        return render_template('viewUser.html', found_user=user)
+        return render_template('viewUser.html', cur_user=session, found_user=user)
         
     except Error as e:
             print(e)
