@@ -68,6 +68,7 @@ def canMessage(sender_id, receiver_id):
     cur = mysql.connection.cursor()
     if sender_id == receiver_id:
         return False
+    
     cur.execute("""
                 SELECT 1 FROM FRIENDS
                 WHERE (user_id = %s AND friend_id = %s)
@@ -75,6 +76,7 @@ def canMessage(sender_id, receiver_id):
                 """, (sender_id, receiver_id, receiver_id, sender_id))
     if cur.fetchone():
         return True
+    
     cur.execute("""
                 SELECT 1
                 FROM PAYS_FOR USER1
@@ -83,6 +85,23 @@ def canMessage(sender_id, receiver_id):
                 """, (sender_id, receiver_id))
     if cur.fetchone():
         return True
+    
+    cur.execute("""SELECT 1 
+                FROM PAYS_FOR 
+                JOIN BILL_GROUPS ON PAYS_FOR.group_num = BILL_GROUPS.group_num 
+                WHERE PAYS_FOR.user_id = %s AND BILL_GROUPS.manager_id = %s
+                """, (sender_id, receiver_id))
+    if cur.fetchone():
+        return True
+    
+    cur.execute("""SELECT 1 
+            FROM BILL_GROUPS 
+            JOIN PAYS_FOR ON BILL_GROUPS.group_num = PAYS_FOR.group_num 
+            WHERE BILL_GROUPS.manager_id = %s AND PAYS_FOR.user_id = %s 
+            """, (sender_id, receiver_id))
+    if cur.fetchone():
+        return True
+
     return False
 
 @app.route('/')

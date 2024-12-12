@@ -180,25 +180,25 @@
 			<div class = "center">
 				<div class = "centerform">
 					<h1 style="font-size: 50px">Group Name: {{ billgroup[0][2] }}</h1>
-                    <h1>Amount: <div id="amt" style="display: inline-block">${{ billgroup[0][3] }}</div>
-						<form method="POST" action="{{ url_for('editAmount') }}" id="amtform" style="display: none">
-							<input type="hidden" name="gnum" value={{gnum}}>
-							<input type="number" step="any" name="amt" value={{billgroup[0][3]}} style="display: inline-block; font-size: 30px; width: 125px">
-							<input type="image" src="{{url_for('static', filename='images/confirm.png')}}" style="max-width: 27px; max-height: 27px; margin-top: 3px; margin-left: 5px">
-						</form>
-						{% if user['userID'] == billgroup[0][4] %}
-							<button id="amtbtn" onclick="javascript:editAmount();" style="display: inline-block">
-								<img src="{{url_for('static', filename='images/edit.png')}}" alt="Edit" style="max-height: 25px; max-width: 25px;">
-							</button>
-						{% endif %}
+          <h1>Amount: <div id="amt" style="display: inline-block">${{ billgroup[0][3] }}</div>
+          <form method="POST" action="{{ url_for('editAmount') }}" id="amtform" style="display: none">
+            <input type="hidden" name="gnum" value={{gnum}}>
+            <input type="number" step="any" name="amt" value={{billgroup[0][3]}} style="display: inline-block; font-size: 30px; width: 125px">
+            <input type="image" src="{{url_for('static', filename='images/confirm.png')}}" style="max-width: 27px; max-height: 27px; margin-top: 3px; margin-left: 5px">
+          </form>
+          {% if user['userID'] == billgroup[0][4] %}
+            <button id="amtbtn" onclick="javascript:editAmount();" style="display: inline-block">
+              <img src="{{url_for('static', filename='images/edit.png')}}" alt="Edit" style="max-height: 25px; max-width: 25px;">
+            </button>
+          {% endif %}
 					</h1>
-                    <h2 style="font-size: 30px">Group Manager: {{ billgroup[0][0] }} {{ billgroup[0][1] }}            
-                        {% if user['role'] == 0 %}
-                          <form method="GET" action="{{ url_for('conversation', user_id=billgroup[0][4]) }}" style="display: inline-block; margin-left: 10px">
-                            <input type="submit" value="Contact" class="button">
-                          </form>
-                        {% endif %}
-                    </h2>
+          <h2 style="font-size: 30px">Group Manager: {{ billgroup[0][0] }} {{ billgroup[0][1] }}            
+          {% if user['role'] == 0 %}
+            <form method="GET" action="{{ url_for('conversation', user_id=billgroup[0][4]) }}" style="display: inline-block; margin-left: 10px">
+              <input type="submit" value="Contact" class="button">
+            </form>
+          {% endif %}
+          </h2>
 				</div>
 				<div class="centertable">
 					<h3 style="font-size: 30px">Group Members:</h3>
@@ -214,7 +214,7 @@
 						<tbody id="memsList">
 						{% for member in mlist %}
 						<tr>
-              				<td>{{ member[0] }} {{ member[1] }}</td>
+              <td>{{ member[0] }} {{ member[1] }}</td>
 							<td style="display: flex; height: 40px"><div id={{member[4]}}display style="display: inline-block; margin-top: 4%;">{{ member[3] }}%</div>
 								<form method="POST" action="{{ url_for('editPercentage') }}" id={{member[4]}}editform style="display: none">
 									<input type="hidden" name="gnum" value={{gnum}}>
@@ -231,13 +231,13 @@
 							<td>{{ member[2] }}</td>
 							<td>
 								{% if user['userID'] != member[4] %}
-                				<form method="POST" action="{{ url_for('sendFriendRequest') }}" style="display: inline; margin-left: 35%">
-									<input type="hidden" name="user_id" value="{{ member[4] }}">
-                  					<input type="submit" value="Send Friend Request" class="button" >
-								</form>
-								<form method="GET" action="{{ url_for('conversation', user_id=member[4]) }}" style="display: inline">
-									<input type="submit" value="Message" class="button">
-								</form>
+                  <form method="POST" action="{{ url_for('sendFriendRequest') }}" style="display: inline; margin-left: 35%">
+                    <input type="hidden" name="user_id" value="{{ member[4] }}">
+                  <input type="submit" value="Send Friend Request" class="button" >
+                  </form>
+                  <form method="GET" action="{{ url_for('conversation', user_id=member[4]) }}" style="display: inline">
+                    <input type="submit" value="Message" class="button">
+                  </form>
 								{% endif %}
 								{% if user['userID'] == billgroup[0][4] %}
 									<form method="POST" action="{{ url_for('removeGroupUser') }}" style="display: inline">
