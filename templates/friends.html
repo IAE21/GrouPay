@@ -11,10 +11,10 @@
         }
 
         .top {
-            flex: 0 0 auto;
+            flex: 0 0 auto; 
             background-color: #7FD8B9;
             color: white;
-            padding: 10px;
+            height: 8%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -22,7 +22,8 @@
 
         .links {
             display: flex;
-            gap: 10px;
+            margin-right: 25px;
+            height: 100%;
         }
 
         .side {
@@ -45,9 +46,47 @@
         }
 
         table {
-            width: 75%;
-            border-collapse: collapse;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            width: 60%;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-top: 20px;
+            border-radius: 16px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    
+        th {
+            background-color: #7FD8B9;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid grey;
+            border-collapse: separate;
+            font-size: x-large;
+        }
+    
+        th:first-child {
+            border-radius: 16px 0 0 0;
+        }
+    
+        th:last-child {
+            border-radius: 0 16px 0 0;
+            width: 25%;
+        }
+
+        td:last-child {
+            width: 25%;
+        }
+    
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid grey;
+        }
+        
+        tr:last-child td {
+            border-bottom: 0;
         }
 
         .center {
@@ -67,6 +106,23 @@
             border-radius: 8px;
         }
 
+        a.navbutton {
+            background-color: #7FD8B9;
+            color: white;
+            text-decoration: none;
+            font-size: large;
+            text-align: center;
+            cursor: pointer;
+            height: 100%;
+            padding-top: 25px;
+            padding-left: 17.5px;
+            padding-right: 17.5px;
+        }
+    
+        .navbutton:hover {
+            background-color: #4A4F56;
+        }
+
         .alert {
             margin-top: 20px;
             color: red;
@@ -77,23 +133,22 @@
     <div class="container">
         <div class="top"><img src="{{url_for('static', filename='images/logo_small.png')}}" alt="GrouPay">
 			<div class="links">
-				<div><a href="/dashboard" style="color: white;">Dashboard</a></div>
-				{% if role == 1 %}
-				<div><a href="/createGroup" style="color: white;">Create New Billing Group</a></div>
+				<a class="navbutton" href="/dashboard">Dashboard</a>
+				{% if user['role'] == 1 %}
+				<a class="navbutton" href="/createGroup">Create New Billing Group</a>
 				{% endif %}
-				<div><a href = "/searchGroups" style="color: white;">Search for Groups</a></div>
-				<div><a href = "/searchUsers" style="color: white;">Search for Users</a></div>
-				<div><a href = "/dashboard" style="color: white;">Send an Invite</a></div>
-				<div><a href = "/friends" style="color: white;">Friends</a></div>
-				<div><a href = "/dashboard" style="color: white;">My Profile</a></div>
-				<div><a href = "/logout" style="color: white;">Sign out</a></div>
+				<a class="navbutton" href = "/searchGroups">Search for Groups</a>
+				<a class="navbutton" href = "/searchUsers">Search for Users</a>
+				<a class="navbutton" href = "/friends">Friends</a>
+				<a class="navbutton" href = "/profile">My Profile</a>
+				<a class="navbutton" href = "/logout">Sign out</a>
 			</div>
 		</div>
         <div style="display: flex;">
             <div class="side"></div>
             <div class="middle">
-                <div class="center">
-                    <h1>Your Friends</h1>
+                <div class="center" >
+                    <h1 style="font-size:50px">Your Friends</h1>
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -108,7 +163,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Username</th>
-                                <th></th>
+                                <th style="width: 35%"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -116,10 +171,7 @@
                             <tr>
                                 <td>{{ friend[1] }} {{ friend[2] }}</td>
                                 <td>{{ friend[3] }}</td>
-                                <td>
-                                   
-                                </td>
-                                <td>
+                                <td style="width: 35%">
                                     <form action="{{ url_for('viewUser', user_id=friend[0]) }}" style="display:inline;">
                                         <input type="hidden" name="viewUser" value="{{ friend[0] }}">
                                         <input type="submit" value="View Profile" class="button">
@@ -148,7 +200,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Username</th>
-                                <th></th>
+                                <th style="width: 35%"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,7 +208,11 @@
                             <tr>
                                 <td>{{ request[1] }} {{ request[2] }}</td>
                                 <td>{{ request[3] }}</td>
-                                <td>
+                                <td style="width: 35%">
+                                    <form action="{{ url_for('viewUser', user_id=request[0]) }}" style="display:inline;">
+                                        <input type="hidden" name="viewUser" value="{{ request[0] }}">
+                                        <input type="submit" value="View Profile" class="button">
+                                    </form>
                                     <form method="POST" action="{{ url_for('acceptFriendRequest') }}" style="display:inline;">
                                         <input type="hidden" name="requester_id" value="{{ request[0] }}">
                                         <input type="submit" value="Accept" class="button">
