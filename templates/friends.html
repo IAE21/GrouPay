@@ -52,6 +52,8 @@
             border-spacing: 0;
             margin-top: 20px;
             border-radius: 16px;
+            margin-left: auto;
+            margin-right: auto;
         }
     
         th {
@@ -170,6 +172,14 @@
                                 <td>{{ friend[1] }} {{ friend[2] }}</td>
                                 <td>{{ friend[3] }}</td>
                                 <td style="width: 35%">
+                                    <form action="{{ url_for('viewUser', user_id=friend[0]) }}" style="display:inline;">
+                                        <input type="hidden" name="viewUser" value="{{ friend[0] }}">
+                                        <input type="submit" value="View Profile" class="button">
+                                    </form>
+                                    <form action="{{ url_for('conversation', user_id=friend[0]) }}" style="display:inline;">
+                                        <input type="hidden" name="viewUser" value="{{ friend[0] }}">
+                                        <input type="submit" value="Message" class="button">
+                                    </form>
                                     <form method="POST" action="{{ url_for('removeFriend') }}" style="display:inline;">
                                         <input type="hidden" name="friend_id" value="{{ friend[0] }}">
                                         <input type="submit" value="Remove Friend" class="button">
@@ -194,7 +204,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Username</th>
-                                <th></th>
+                                <th style="width: 35%"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -202,7 +212,12 @@
                             <tr>
                                 <td>{{ request[1] }} {{ request[2] }}</td>
                                 <td>{{ request[3] }}</td>
-                                <td>
+                                <td style="width: 35%">
+                                    <form action="{{ url_for('viewUser', user_id=request[0]) }}" style="display:inline;">
+                                        <input type="hidden" name="viewUser" value="{{ request[0] }}">
+                                        <input type="submit" value="View Profile" class="button">
+                                    </form>
+                                    
                                     <form method="POST" action="{{ url_for('acceptFriendRequest') }}" style="display:inline;">
                                         <input type="hidden" name="requester_id" value="{{ request[0] }}">
                                         <input type="submit" value="Accept" class="button">

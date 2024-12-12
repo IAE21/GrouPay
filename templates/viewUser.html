@@ -48,6 +48,52 @@
             text-align: center;
         }
 
+        .centerform {
+            margin-top: 20px;
+        }
+
+        .centertable {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        table {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            border-radius: 16px;
+        }
+    
+        th {
+            background-color: #7FD8B9;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid grey;
+            border-collapse: separate;
+            font-size: x-large;
+        }
+    
+        th:first-child {
+            border-radius: 16px 0 0 0;
+        }
+    
+        th:last-child {
+            border-radius: 0 16px 0 0;
+        }
+    
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid grey;
+        }
+        
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
         .button {
             background-color: #4A4F56;
             border: none;
@@ -57,7 +103,6 @@
             text-decoration: none;
             font-size: 24px;
             cursor: pointer;
-            margin: 5px;
             border-radius: 8px;
         }
 
@@ -99,32 +144,83 @@
 				<a class="navbutton" href = "/logout">Sign out</a>
 			</div>
 		</div>
+        
         <div style="display: flex;">
             <div class="side"></div>
             <div class="middle">
                 <div class="center">
                     <h1 style="font-size:50px">{{ found_user[1] }}'s Profile</h1>
-                    <div style="display:grid; width: 30%; gap: 10%; align-items: center; margin-left: 37.5%; text-align: left">
-                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 1">First Name:</h2>
-                        <div style="font-size: 25px; grid-column: 2; grid-row: 1">{{ found_user[1] }}</div>
-
-                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 2">Last Name:</h2>
-                        <div style="font-size: 25px; grid-column: 2; grid-row: 2">{{ found_user[2] }}</div>
-
-                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 3">Username:</h2>
-                        <div style="font-size: 25px; grid-column: 2; grid-row: 3">{{ found_user[3] }}</div>
-                    </div>
                     <form method="POST" action="{{ url_for('sendFriendRequest') }}" style="margin-top: 50px">
                         <input type="hidden" name="user_id" value="{{ found_user[0] }}">
-                        <input type="submit" value="Send Friend Request" class="button">
+                        <input type="submit" value="Send Friend Request" class="button" >
                     </form>
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert {{ category }}">{{ message }}</div>
-                        {% endfor %}
+                    {% if allow_message %}
+                        <form method="GET" action="{{ url_for('conversation', user_id=found_user[0]) }} " style="margin-top: 50px">
+                            <input type="submit" value="Message" class="button">
+                        </form>
+                    {% else %}
+                        <form method="GET" action="{{ url_for('conversation', user_id=found_user[0]) }}" style="margin-top: 50px">
+                            <input type="submit" value="Message" class="button">
+                        </form>
                     {% endif %}
-                {% endwith %}
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert {{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <div style="display:grid; width: 30%; gap: 10%; align-items: center; margin-left: 37.5%; text-align: left">
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 1">Full Name:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 1">{{ found_user[1] }} {{ found_user[2] }}</div>
+
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 2">Username:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 2">{{ found_user[3] }}</div>
+
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 3">Company:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 3">{% if found_user[5] == 1 and found_user[4] %}{{ found_user[4] }}{% else %}N/A{% endif %}</div>
+                    
+                        <h2 style="font-size: 30px; grid-column: 1; grid-row: 4">Account Type:</h2>
+                        <div style="font-size: 25px; grid-column: 2; grid-row: 4">{% if found_user[5] == 1 %}Corporate{% else %}Private{% endif %}</div>
+
+                        <div class="groups-info">
+                            {% if found_user[5] == 1 %}
+                            <h2>Groups managed by {{ found_user[1] }} {{ found_user[2] }}:</h2>
+                            {% else %}
+                            <h2>Groups {{ found_user[1] }} {{ found_user[2] }} is in:</h2>
+                            {% endif %}
+                            {% if groups and groups|length > 0 %}
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Group Name</th>
+                                        <th>Amount</th>
+                                        {% if found_user[5] == 0 %}
+                                        <th>Managed By</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for g in groups %}
+                                    <tr>
+                                        <td>{{ g[1] }}</td>
+                                        <td>{{ g[2] }}</td>
+                                        {% if found_user[5] == 0 %}
+                                        <td>{{ g[3] }} {{ g[4] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                                {% if found_user[5] == 1 %}
+                                <p>This corporate user does not manage any groups.</p>
+                                {% else %}
+                                <p>This private user is not currently in any groups.</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="side"></div>

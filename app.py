@@ -64,6 +64,27 @@ def check_empty(pending_invlist):
         no_invs = "true"
     return no_invs
     
+def canMessage(sender_id, receiver_id):
+    cur = mysql.connection.cursor()
+    if sender_id == receiver_id:
+        return False
+    cur.execute("""
+                SELECT 1 FROM FRIENDS
+                WHERE (user_id = %s AND friend_id = %s)
+                OR (user_id = %s AND friend_id = %s)
+                """, (sender_id, receiver_id, receiver_id, sender_id))
+    if cur.fetchone():
+        return True
+    cur.execute("""
+                SELECT 1
+                FROM PAYS_FOR USER1
+                JOIN PAYS_FOR USER2 ON USER1.group_num = USER2.group_num
+                WHERE USER1.user_id = %s AND USER2.user_id = %s
+                """, (sender_id, receiver_id))
+    if cur.fetchone():
+        return True
+    return False
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -149,8 +170,7 @@ def createGroup():
         except Error as e:
             print(e)
             return render_template('createGroup.html', user=session )
-    
-    return render_template('createGroup.html', user=session, )
+    return render_template('createGroup.html', user=session )
 
 @app.route('/searchGroups', methods=['GET', 'POST'])
 def searchGroups():
@@ -203,15 +223,11 @@ def manageGroup():
 
         try:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT fname, lname, group_name, amount, user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
+            cur.execute("SELECT fname, lname, group_name, amount, USERS.user_id FROM USERS, BILL_GROUPS WHERE USERS.user_id = BILL_GROUPS.manager_id AND group_num=%s", (gnum,))
             billgroup = cur.fetchall()
-            mgr_name = billgroup[0][0] + ' ' + billgroup[0][1]
-            gname = billgroup[0][2]
-            amount = billgroup[0][3]
-            mgr_id = billgroup[0][4]
             cur.execute("SELECT fname, lname, username, percent, USERS.user_id FROM USERS, PAYS_FOR WHERE USERS.user_id = PAYS_FOR.user_id AND group_num=%s", (gnum,))
             mlist = cur.fetchall()
-            return render_template('manageGroup.html', user=session, gname=gname, gnum=gnum, mgr=mgr_name, mgr_id=mgr_id, amount=amount, mlist=mlist)
+            return render_template('manageGroup.html', user=session, billgroup=billgroup, gnum=gnum, mlist=mlist)
         except Error as e:
             print(e)
             glist = fetch_glist()
@@ -320,7 +336,7 @@ def searchUsers():
 def viewUser(user_id):
     try:
         cur = mysql.connection.cursor()
-        cur.execute("""SELECT user_id, fname, lname, username 
+        cur.execute("""SELECT user_id, fname, lname, username, company, corporate
                     FROM USERS WHERE user_id = %s""", (user_id,))
         user = cur.fetchone()
 
@@ -329,6 +345,27 @@ def viewUser(user_id):
             return redirect(url_for('searchUsers'))
         return render_template('viewUser.html', cur_user=session, found_user=user)
         
+        if user[5] == 1:
+            cur.execute("""
+                        SELECT group_num, group_name, amount 
+                        FROM BILL_GROUPS
+                        WHERE manager_id = %s
+                        """, (user_id,))
+            groups = cur.fetchall()
+        
+        else: 
+            cur.execute("""
+                        SELECT BILL_GROUPS.group_num, BILL_GROUPS.group_name, BILL_GROUPS.amount, USERS.fname AS manager_fname, USERS.lname AS manager_lname
+                        FROM PAYS_FOR
+                        JOIN BILL_GROUPS ON PAYS_FOR.group_num = BILL_GROUPS.group_num
+                        JOIN USERS ON BILL_GROUPS.manager_id = USERS.user_id
+                        WHERE PAYS_FOR.user_id = %s""", (user_id,))
+            groups = cur.fetchall()
+            group_type = "Groups Joined"
+        sender_id = session['userID']
+        allow_message = canMessage(sender_id, user_id)
+        return render_template('viewUser.html', found_user=user, groups=groups, allow_message=allow_message)
+
     except Error as e:
             print(e)
             glist = fetch_glist()
@@ -624,6 +661,40 @@ def declineGroupInvite():
 @app.route('/profile', methods=['GET','POST'])
 def profile():
     return render_template('profile.html', user=session)
+    
+@app.route('/conversation/<int:user_id>', methods=['GET', 'POST'])
+def conversation(user_id):
+    current_user_id = session['userID']
+
+    if not canMessage(current_user_id, user_id):
+        flash('You cannot message this user as you are not friends or do not share a group.', 'error')
+        return redirect(url_for('viewUser', user_id=user_id))
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT fname, lname FROM USERS WHERE user_id = %s", (user_id,))
+    other_user = cur.fetchone()
+    other_user_name = other_user[0] + ' ' + other_user[1]
+
+    if request.method == 'POST':
+        content = request.form.get('content')
+        if content:
+            cur.execute("""
+                INSERT INTO MESSAGES (sender_id, receiver_id, content)
+                VALUES (%s, %s, %s)
+                """, (current_user_id, user_id, content))
+            mysql.connection.commit()
+
+    cur.execute("""
+                SELECT sender_id, receiver_id, content, timestaamp
+                FROM MESSAGES
+                WHERE (sender_id = %s AND receiver_id = %s)
+                OR (sender_id = %s AND receiver_id = %s)
+                ORDER BY timestaamp ASC
+                """, (current_user_id, user_id, user_id, current_user_id))
+    messages = cur.fetchall()
+
+    return render_template('conversation.html', messages=messages, other_user_id=user_id, other_user_name=other_user_name)
 
 @app.route('/logout', methods=['GET'])
 def logout():
